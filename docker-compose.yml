@@ -1,0 +1,90 @@
+# version: '3.8'    
+# Docker Compose 버전 설정 -> V2에서는 자동으로 최신 Compose 파일 형식을 사용하기 때문에 더 이상 버전 속성이 필요하지 않아 삭제
+
+services:    # 여러 서비스 정의
+  # Node.js 백엔드 서비스
+  backend:
+    build: .    # 현재 디렉터리의 Dockerfile을 사용하여 빌드
+    ports:
+      - "3000:3000"    # 호스트의 3000번 포트를 컨테이너의 3000번 포트에 매핑
+    environment:    # 환경 변수 설정
+      NODE_ENV: development
+      PORT: 3000
+      MYSQL_HOST: mysql
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: insideout
+      REDIS_HOST: redis
+    volumes:    # 볼륨 설정 (호스트 디렉터리와 컨테이너 디렉터리 연결)
+      - .:/app
+      - /app/node_modules
+    command: npm run dev    # 개발 모드로 실행 (nodemon 사용)
+    depends_on:    # 이 서비스가 실행되기 전에 필요한 서비스들
+      - mysql
+      - redis
+
+  # Nginx 리버스 프록시 서비스
+  nginx:
+    image: nginx:latest    # 최신 버전 Nginx 이미지 사용
+    container_name: nginx
+    ports:
+      - "80:80"    # 호스트의 80번 포트를 컨테이너의 80번 포트에 매핑
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf    # Nginx 설정 파일 매핑
+    depends_on:
+      - backend    # backend 서비스가 먼저 실행되어야 함
+
+  # MySQL 데이터베이스 서비스
+  mysql:
+    image: mysql:8    # MySQL 8 버전 이미지 사용
+    container_name: mysql
+    ports:
+      - "3306:3306"    # 호스트의 3306번 포트를 컨테이너의 3306번 포트에 매핑
+    environment:    # MySQL 환경 변수 설정
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: insideout
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - mysql-data:/var/lib/mysql    # MySQL 데이터를 저장할 볼륨
+
+  # Redis 서비스
+  redis:
+    image: redis:alpine    # 경량 Redis Alpine 이미지 사용
+    container_name: redis
+    ports:
+      - "6379:6379"    # 호스트의 6379번 포트를 컨테이너의 6379번 포트에 매핑
+    volumes:
+      - redis-data:/data    # Redis 데이터를 저장할 볼륨
+
+  # cAdvisor 서비스 (컨테이너 리소스 모니터링)
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest    # cAdvisor 최신 이미지 사용
+    ports:
+      - "8080:8080"    # 호스트의 8080번 포트를 컨테이너의 8080번 포트에 매핑
+    volumes:
+      - /var/run:/var/run
+      - /sys:/sys
+      - /var/lib/docker:/var/lib/docker:ro
+
+  # Prometheus 서비스 (메트릭 수집)
+  prometheus:
+    image: prom/prometheus    # Prometheus 이미지 사용
+    ports:
+      - "9090:9090"    # 호스트의 9090번 포트를 컨테이너의 9090번 포트에 매핑
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml    # Prometheus 설정 파일 매핑
+
+  # Grafana 서비스 (메트릭 시각화)
+  grafana:
+    image: grafana/grafana    # Grafana 이미지 사용
+    ports:
+      - "3001:3000"    # 호스트의 3001번 포트를 컨테이너의 3000번 포트에 매핑
+    environment:    # Grafana 관리자 계정 설정
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+
+# 볼륨 설정 (MySQL과 Redis 데이터를 영구적으로 저장하기 위해 사용)
+volumes:
+  mysql-data:
+  redis-data:

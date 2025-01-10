@@ -1,0 +1,15 @@
+# Prometheus 전역 설정
+global:
+  scrape_interval: 15s    # 15초마다 메트릭 수집
+
+# 수집할 대상 설정
+scrape_configs:
+  # cAdvisor로부터 컨테이너 메트릭 수집
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']    # cAdvisor 컨테이너의 8080번 포트에서 메트릭 수집
+
+  # Node.js 애플리케이션으로부터 메트릭 수집
+  - job_name: 'node'
+    static_configs:
+      - targets: ['backend:3000']    # backend 컨테이너의 3000번 포트에서 메트릭 수집
