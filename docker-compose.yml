@@ -1,0 +1,26 @@
+
+services:     
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"    
+    volumes:
+      - './app:/code/app'
+    depends_on:
+      - teamC_mysql
+  teamC_mysql:
+    image: mysql:latest  
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: InsideOut
+      Lang: C.UTF-8
+    ports:
+      - "3307:3306"  
+    volumes:
+      - ./db_data:/var/lib/mysql
+
+
+  
+   
