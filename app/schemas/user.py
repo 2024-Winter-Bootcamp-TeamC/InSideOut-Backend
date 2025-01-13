@@ -5,11 +5,7 @@ class UserPostRequest(BaseModel):
     nickname: str
     password: str
 
-class UserInDB(UserPostRequest):
-    id: int
-    created_at: str
-    updated_at: str
-    is_deleted: bool
 
-class UserPostResponse(BaseModel):
-    id: int
+# 사용자 입력 모델
+class UserInput(BaseModel):
+    message: str
