@@ -10,9 +10,6 @@ class UserLoginRequest(UserPostRequest):
 
 class UserLoginResponse(BaseModel):
     id: int
-    nickname: str
-    message: str = "Successfully logged in"
-
 
 # 사용자 입력 모델
 class UserInput(BaseModel):
