@@ -12,8 +12,8 @@ class User(Base):
     __tablename__ = 'users'  # 테이블 이름
 
     id = Column(Integer, primary_key=True, index=True)
-    nickname = Column(String(10), nullable=False)
-    password = Column(String(20), unique=True, nullable=False)
+    nickname = Column(String(10), nullable=False, unique=True)
+    password = Column(String(20), nullable=False)
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
     updated_at = Column(
         DateTime,

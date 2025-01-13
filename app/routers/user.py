@@ -1,8 +1,9 @@
 from fastapi import APIRouter ,Depends, HTTPException
-from schemas.user import UserPostRequest,UserLoginRequest,UserLoginResponse
+from schemas.user import UserPostRequest,UserLoginRequest,UserLoginResponse,UserDeleteRequest
 from crud import user as UserServices
 from sqlalchemy.orm import Session
 from database import get_db
+from datetime import datetime
 
 router = APIRouter()
 
@@ -19,4 +20,9 @@ def get_user(user_id : int, db : Session = Depends(get_db)):
 @router.post("/login",description="유저 로그인")
 def login_user(login_data:UserLoginRequest, db : Session = Depends(get_db)):
     response = UserServices.login_user(login_data.nickname, login_data.password, db)
+    return response
+
+@router.delete("/{user_id}",description="유저 탈퇴")
+def delete_user(user_id : int, delete_data:UserDeleteRequest, db : Session = Depends(get_db)):
+    response = UserServices.delete_user(user_id=user_id, db=db)
     return response
