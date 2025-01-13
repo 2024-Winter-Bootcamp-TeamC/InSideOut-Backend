@@ -15,8 +15,6 @@ class UserLoginResponse(BaseModel):
 class UserInput(BaseModel):
     message: str
 
-class UserDeleteRequest(BaseModel):
-    nickname: str
 
 
     

@@ -1,9 +1,8 @@
 from fastapi import APIRouter ,Depends, HTTPException
-from schemas.user import UserPostRequest,UserLoginRequest,UserLoginResponse,UserDeleteRequest
+from schemas.user import UserPostRequest,UserLoginRequest,UserLoginResponse
 from crud import user as UserServices
 from sqlalchemy.orm import Session
 from database import get_db
-from datetime import datetime
 
 router = APIRouter()
 
@@ -23,6 +22,6 @@ def login_user(login_data:UserLoginRequest, db : Session = Depends(get_db)):
     return response
 
 @router.delete("/{user_id}",description="유저 탈퇴")
-def delete_user(user_id : int, delete_data:UserDeleteRequest, db : Session = Depends(get_db)):
+def delete_user(user_id : int, db : Session = Depends(get_db)):
     response = UserServices.delete_user(user_id=user_id, db=db)
     return response
