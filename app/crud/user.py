@@ -20,4 +20,14 @@ def find_user(user_id :int ,db :Session)  :
     if user is None:
         return HTTPException(status_code=404, detail="User not found")
     return user.nickname
+
+def login_user(nickname: str, password: str, db: Session):
+    user = db.query(User).filter(User.nickname == nickname).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="The nickname doesn't exist")
+
+    if user.password != password:
+        raise HTTPException(status_code=400, detail="The password is not correct")
+
+    return {"status": "success", "message": "Successfully logged in", "user_id": user.id}
         
