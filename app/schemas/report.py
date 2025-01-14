@@ -14,4 +14,14 @@ class ReportsResponse(BaseModel):
 class ResponseError(BaseModel):
     status: str
     message: str
-    
+
+class CreateReport(Report):
+    user_id:int
+    situation_summary:str
+    emotion_summary:str
+
+class CreateResponse(BaseModel):
+    status: str
+    message: str
+    report_id: int
+
