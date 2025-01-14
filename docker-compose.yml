@@ -12,11 +12,8 @@ services:
       - teamC_mysql
     env_file: 
       - .env
-
-    
-
-
-
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
   teamC_mysql:
     image: mysql:latest  
     environment:
@@ -27,3 +24,7 @@ services:
       - "3307:3306"  
     volumes:
       - ./db_data:/var/lib/mysql
+
+
+  
+   
