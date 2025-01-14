@@ -10,6 +10,13 @@ services:
       - './app:/code/app'
     depends_on:
       - teamC_mysql
+    env_file: 
+      - .env
+
+    
+
+
+
   teamC_mysql:
     image: mysql:latest  
     environment:

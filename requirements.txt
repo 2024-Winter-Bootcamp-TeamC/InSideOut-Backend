@@ -4,3 +4,8 @@ sqlalchemy
 pymysql
 cryptography
 pytz
+google-cloud-vision
+google-cloud-pubsub
+Pillow
+python-multipart
+python-dotenv
