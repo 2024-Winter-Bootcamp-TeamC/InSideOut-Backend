@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse
 from database import engine
 from models import Base
 from schemas.user import UserPostRequest
-from routers import user, chat, report
+from routers import user, chat, report, preparation
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -30,3 +30,4 @@ def serve_html():
 app.include_router(user.router, prefix="/api/users")
 app.include_router(chat.router, prefix="/api/chats")
 app.include_router(report.router, prefix="/api/reports")
+app.include_router(preparation.router, prefix="/api/preparations")
