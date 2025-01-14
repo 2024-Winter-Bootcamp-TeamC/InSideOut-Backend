@@ -14,3 +14,7 @@ class UserLoginResponse(BaseModel):
 # 사용자 입력 모델
 class UserInput(BaseModel):
     message: str
+
+
+
+    
