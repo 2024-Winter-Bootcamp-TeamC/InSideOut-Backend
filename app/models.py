@@ -36,7 +36,6 @@ class Report(Base):
     situation_summary = Column(Text, nullable=False)  
     emotion_summary = Column(Text, nullable=False)  
     category = Column(String(10), nullable=False)  
-
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
     updated_at = Column(
         DateTime,
