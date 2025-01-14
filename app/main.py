@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse
 from database import engine
 from models import Base
 from schemas.user import UserPostRequest
-from routers import user,chat, ai
+from routers import user,chat, report, preparation, ai
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -29,4 +29,6 @@ def serve_html():
     return FileResponse("test.html")
 app.include_router(user.router, prefix="/api/users")
 app.include_router(chat.router, prefix="/api/chats")
+app.include_router(report.router, prefix="/api/reports")
+app.include_router(preparation.router, prefix="/api/preparations")
 app.include_router(ai.router, prefix="/api/ai")  # AI 라우터 등록

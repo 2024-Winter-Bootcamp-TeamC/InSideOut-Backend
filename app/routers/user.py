@@ -20,3 +20,8 @@ def get_user(user_id : int, db : Session = Depends(get_db)):
 def login_user(login_data:UserLoginRequest, db : Session = Depends(get_db)):
     response = UserServices.login_user(login_data.nickname, login_data.password, db)
     return response
+
+@router.delete("/{user_id}",description="유저 탈퇴")
+def delete_user(user_id : int, db : Session = Depends(get_db)):
+    response = UserServices.delete_user(user_id=user_id, db=db)
+    return response
