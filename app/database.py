@@ -1,6 +1,9 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from models import Emotion
+from datetime import datetime
+import pytz
 
 engine = create_engine('mysql+pymysql://root:root@insideout-backend-teamC_mysql-1:3306/InsideOut')
 meta = MetaData()
@@ -9,6 +12,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+KST = pytz.timezone("Asia/Seoul")
 
 def get_db():
     db = SessionLocal()
@@ -16,3 +20,83 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def initialize_database():
+    db = SessionLocal()
+    try:
+        # 초기 감정 데이터
+        emotions = [
+            #기쁨이 1
+            Emotion(
+                emotion_name="기쁨이",
+                explanation="기분이 좋은 상태",
+                is_deleted=False,
+                created_at=datetime.now(KST),
+                updated_at=datetime.now(KST)
+            ),
+            #슬픔이 2   
+            Emotion(
+                
+                emotion_name="슬픔이",
+                explanation="마음이 아프거나 슬픈 상태",
+                is_deleted=False,
+                created_at=datetime.now(KST),
+                updated_at=datetime.now(KST)
+            ),
+            #버럭이 3
+            Emotion(
+                
+                emotion_name="버럭이",
+                explanation="화가난 상태",
+                is_deleted=False,
+                created_at=datetime.now(KST),
+                updated_at=datetime.now(KST)
+            ),
+            #까칠이 4
+            Emotion(
+                
+                emotion_name="까칠이",
+                explanation="까칠한 상태",
+                is_deleted=False,
+                created_at=datetime.now(KST),
+                updated_at=datetime.now(KST)
+            ),
+            #소심이 5
+            Emotion(
+                
+                emotion_name="소심이",
+                explanation="소심한 상태",
+                is_deleted=False,
+                created_at=datetime.now(KST),
+                updated_at=datetime.now(KST)
+            ),
+            #불안이 6
+            Emotion(
+                
+                emotion_name="불안이",
+                explanation="불안한 상태",
+                is_deleted=False,
+                created_at=datetime.now(KST),
+                updated_at=datetime.now(KST)
+            ),
+            #당황이 7
+            Emotion(
+                
+                emotion_name="당황이",
+                explanation="당황한 상태",
+                is_deleted=False,
+                created_at=datetime.now(KST),
+                updated_at=datetime.now(KST)
+            ),
+        ]
+        
+
+        # 데이터 삽입
+        db.bulk_save_objects(emotions)
+        db.commit()
+    finally:
+        db.close()
+
+# 이 파일을 직접 실행할 때 데이터 초기화
+if __name__ == "__main__":
+    initialize_database()

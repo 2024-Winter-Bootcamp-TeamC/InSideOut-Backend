@@ -3,9 +3,9 @@ from fastapi.responses import FileResponse
 from database import engine
 from models import Base
 from schemas.user import UserPostRequest
-from routers import user,chat, report, preparation, ai
+from routers import user,chat, report, preparation, ai ,chatroom
 from fastapi.middleware.cors import CORSMiddleware
-
+from database import initialize_database
 app = FastAPI(
     title="Example API",
     description="This is an example API of FastAPI",
@@ -13,6 +13,7 @@ app = FastAPI(
         "name": "Masaki Yoshiiwa",
         "email": "masaki.yoshiiwa@gmail.com",
     },
+    
     redoc_url="/v1/redoc",
     openapi_url="/v1/openapi.json",
 )
@@ -24,6 +25,7 @@ app.add_middleware(
     allow_headers=["*"],  
 )
 router = APIRouter()
+initialize_database()
 @app.get("/")
 def serve_html():
     return FileResponse("test.html")
@@ -32,3 +34,4 @@ app.include_router(chat.router, prefix="/api/chats")
 app.include_router(report.router, prefix="/api/reports")
 app.include_router(preparation.router, prefix="/api/preparations")
 app.include_router(ai.router, prefix="/api/ai")  # AI 라우터 등록
+app.include_router(chatroom.router, prefix="/chatrooms", tags=["Chatrooms"])
