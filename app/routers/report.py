@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from crud import report as ReportServices
-from schemas.report import ReportsResponse, CreateResponse, ReportResponse
+from schemas.report import ReportsResponse, CreateResponse, ReportResponse,ResponseStatus
 from database import get_db
 
 router = APIRouter()
@@ -27,10 +27,8 @@ def create_report(user_id: int, db: Session = Depends(get_db)):
 @router.get("/view/{report_id}", description="보고서 조회", response_model=ReportResponse)
 def view_report(report_id: int, db: Session = Depends(get_db)):
     try:
-        # get_report_by_report_id에서 반환된 데이터를 받아옵니다
         response = ReportServices.get_report_by_report_id(report_id, db)
-        
-        # ReportResponse 모델에 맞게 데이터 반환
+
         return ReportResponse(
             status="success", 
             message="successfully",
@@ -38,8 +36,15 @@ def view_report(report_id: int, db: Session = Depends(get_db)):
             situation_summary=response["situation_summary"],
             emotion_summary=response["emotion_summary"],
             wording=response["wording"],
-            emotion_percentage=response["emotion_percentage"]  # data 필드는 Dictionary 형태로 설정
+            emotion_percentage=response["emotion_percentage"]  
         )
     except HTTPException as e:
         raise e
 
+@router.delete("/{report_id}", description="보고서 삭제", response_model=ResponseStatus)
+def delete_report(report_id: int, db: Session = Depends(get_db)):
+    try:
+        response = ReportServices.delete_report_by_report_id(report_id, db)
+        return ResponseStatus(status=response["status"], message=response["message"])
+    except HTTPException as e:
+        raise e

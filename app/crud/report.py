@@ -75,17 +75,18 @@ def parse_percentages(all_emotion_percentage: dict, report_id: int, db: Session)
 
                 db.add(emotion_percentage_entry)
             except ValueError:
-                # 퍼센티지 변환 실패 시 처리
                 raise HTTPException(status_code=400, detail=f"Invalid percentage value for {emotion_name}")
 
-    # DB에 변경사항 커밋
     db.commit()
 
 
 
 def get_report_by_report_id(report_id: int, db: Session):
     report_data = db.query(Report).filter(Report.id == report_id, Report.is_deleted == False).first()
-
+    
+    if not report_data or report_data.is_deleted:
+        raise HTTPException(status_code=400, detail="Report already deleted")
+    
     emotion_data = db.query(EmotionPercentages.emotion_id, EmotionPercentages.percentages) \
         .filter(EmotionPercentages.report_id == report_id, EmotionPercentages.is_deleted == False) \
         .all()
@@ -107,3 +108,26 @@ def get_report_by_report_id(report_id: int, db: Session):
         "wording": wording_data.wording if wording_data else "",
         "emotion_percentage": emotions_percentage  
     }
+
+def delete_report_by_report_id(report_id: int, db: Session):
+    report = db.query(Report).filter(Report.id == report_id).first()
+    emotion_percentages=db.query(EmotionPercentages).filter(EmotionPercentages.report_id == report_id).all()
+
+    if report is None:
+        raise HTTPException(status_code=404, detail="Report not found")
+    if report.is_deleted:
+        raise HTTPException(status_code=400, detail="Report already deleted")
+    if not emotion_percentages:
+        raise HTTPException(status_code=404, detail="Emotion percentages not found")
+    
+
+    report.is_deleted = True
+    report.updated_at = datetime.now()
+    
+    for emotion_percentage in emotion_percentages:
+        emotion_percentage.is_deleted = True
+        emotion_percentage.updated_at = datetime.now()
+
+    db.commit()
+
+    return {"status": "success", "message": "Report deleted successfully"}
