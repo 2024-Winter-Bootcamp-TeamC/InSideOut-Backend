@@ -4,19 +4,6 @@ from fastapi import HTTPException
 from datetime import datetime
 import json
 
-def get_ai_response(prompt: str) -> dict:
-    #임시 코드 ai 답변 api 구현 완료되면 추후에 작성, ai프롬프트로 불러올 예정정
-    """
-    openai.api_key = "YOUR_API_KEY"
-    response = openai.Completion.create(
-        model="text-davinci-003",  # 모델을 선택합니다.
-        prompt=prompt,
-        max_tokens=150  # 답변 길이 제한
-    )
-    """
-    #다 따로 받아오는 것(중요)
-    return "키:값,/상황 요약 예시/기쁨이:60.0%슬픔이:19.5%버럭이20.5%/기쁨이:나는 기뻐%슬픔이:나는 슬퍼%버럭이:나는 화나%"
-
 def get_reports_by_user_id(user_id: int, db: Session):
     reports = db.query(Report).filter(Report.user_id == user_id, Report.is_deleted == False).all()
     
@@ -34,11 +21,9 @@ def get_reports_by_user_id(user_id: int, db: Session):
     return report_list
 
 def post_report_by_user_id(user_id: int, db: Session):
-    # AI로부터 받은 응답
-    #ai_response = get_ai_response(prompt)
 
     # 카테고리와 상황요약은 Redis 만들어지면 구현
-    Category="Redis" 
+    category="Redis" 
     situation_summary="Redis 만들어지면 구현"
 
     #JSON 형태로 받음
@@ -51,7 +36,7 @@ def post_report_by_user_id(user_id: int, db: Session):
         title=datetime.now().strftime("%Y-%m-%d"),
         situation_summary=situation_summary,
         emotion_summary=all_emotion_summary,
-        category=Category
+        category=category
     )
 
     # DB에 추가
@@ -105,7 +90,6 @@ def get_report_by_report_id(report_id: int, db: Session):
     emotion_data = db.query(EmotionPercentages.emotion_id, EmotionPercentages.percentages) \
         .filter(EmotionPercentages.report_id == report_id, EmotionPercentages.is_deleted == False) \
         .all()
-
 
     max_percentage = max(emotion_data, key=lambda x: x[1]) if emotion_data else (None, 0)
     max_emotion_id = max_percentage[0] if max_percentage else None
