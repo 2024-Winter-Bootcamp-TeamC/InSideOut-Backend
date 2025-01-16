@@ -35,6 +35,7 @@ def initialize_database():
                 created_at=datetime.now(KST),
                 updated_at=datetime.now(KST)
             ),
+
             #슬픔이 2
             Emotions(
                 emotion_name="슬픔이",
@@ -90,9 +91,9 @@ def initialize_database():
                 updated_at=datetime.now(KST)
             ),
         ]
+
         # 데이터 삽입
         db.bulk_save_objects(emotions)
         db.commit()
     finally:
         db.close()
-
