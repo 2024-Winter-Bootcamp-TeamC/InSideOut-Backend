@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Float, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -34,8 +34,8 @@ class Report(Base):
     id = Column(Integer, primary_key=True, index=True)  # 기본 키
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)  # 외래 키
     title = Column(String(20), nullable=False) 
-    situation_summary = Column(Text, nullable=False)  
-    emotion_summary = Column(Text, nullable=False)  
+    situation_summary = Column(String(100), nullable=False)  
+    emotion_summary = Column(JSON, nullable=False)  
     category = Column(String(10), nullable=False)  
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
     updated_at = Column(
@@ -48,21 +48,7 @@ class Report(Base):
 
     # 외래 키 관계 설정
     user = relationship("User", back_populates="reports")
-
-
-class Emotion(Base):
-    __tablename__ = "emotions"
-
-    id = Column(Integer, primary_key=True)
-    emotion_name = Column(String(10), nullable=False)
-    explanation = Column(String(100), nullable=False) 
-    is_deleted = Column(Boolean, nullable=False, default=False) 
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
-    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST), onupdate=lambda: datetime.now(KST))
-
-    emotion_choices = relationship("EmotionChoose", back_populates="emotion")
-
-
+    
 class Chatroom(Base):
     __tablename__ = "chatrooms"
 
@@ -92,3 +78,47 @@ class EmotionChoose(Base):
     # 관계 설정
     chatroom = relationship("Chatroom", back_populates="emotion_choices")
     emotion = relationship("Emotion", back_populates="emotion_choices")
+    emotionpercentages = relationship("EmotionPercentages", back_populates="report")
+
+
+class Emotions(Base):
+    __tablename__ = 'emotions'  # 테이블 이름
+
+    id = Column(Integer, primary_key=True, index=True)  # 기본 키
+    emotion_name = Column(String(10), nullable=False)
+    explanation = Column(String(100), nullable=False)
+    wording=Column(String(150),nullable=False)
+
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
+    updated_at = Column(
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(KST),
+        onupdate=lambda: datetime.now(KST),  
+    )
+    is_deleted = Column(Boolean, default=False) 
+    
+    # 외래 키 관계 설정
+    emotionpercentages = relationship("EmotionPercentages", back_populates="emotion")
+
+
+class EmotionPercentages(Base):
+    __tablename__ = 'emotion_percentages'  
+
+    id = Column(Integer, primary_key=True, index=True)  # 기본 키
+    report_id = Column(Integer, ForeignKey('reports.id'), nullable=False)  # 외래 키
+    emotion_id = Column(Integer, ForeignKey('emotions.id'), nullable=False)  # 외래 키
+    percentages = Column(Float, nullable=False)  
+
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
+    updated_at = Column(
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(KST),
+        onupdate=lambda: datetime.now(KST),  
+    )
+    is_deleted = Column(Boolean, default=False) 
+
+    # 외래 키 관계 설정
+    report = relationship("Report", back_populates="emotionpercentages")
+    emotion = relationship("Emotions", back_populates="emotionpercentages")
