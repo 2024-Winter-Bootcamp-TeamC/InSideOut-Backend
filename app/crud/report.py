@@ -84,7 +84,6 @@ def parse_percentages(all_emotion_percentage: dict, report_id: int, db: Session)
 
 
 def get_report_by_report_id(report_id: int, db: Session):
-   
     report_data = db.query(Report).filter(Report.id == report_id, Report.is_deleted == False).first()
 
     emotion_data = db.query(EmotionPercentages.emotion_id, EmotionPercentages.percentages) \
@@ -108,4 +107,3 @@ def get_report_by_report_id(report_id: int, db: Session):
         "wording": wording_data.wording if wording_data else "",
         "emotion_percentage": emotions_percentage  
     }
-    
