@@ -5,6 +5,7 @@ from models import Base
 from schemas.user import UserPostRequest
 from routers import user,chat, report, preparation, ai
 from fastapi.middleware.cors import CORSMiddleware
+from database import initialize_database
 
 app = FastAPI(
     title="Example API",
@@ -24,6 +25,8 @@ app.add_middleware(
     allow_headers=["*"],  
 )
 router = APIRouter()
+initialize_database()
+
 @app.get("/")
 def serve_html():
     return FileResponse("test.html")
