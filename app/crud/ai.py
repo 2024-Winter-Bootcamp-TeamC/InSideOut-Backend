@@ -1,3 +1,5 @@
+# crud/ai.py : Claude API 호출 로직
+
 import anthropic
 import os
 import json
