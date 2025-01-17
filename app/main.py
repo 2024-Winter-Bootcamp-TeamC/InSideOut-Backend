@@ -7,6 +7,7 @@ from routers import user,chat, report, preparation, ai ,chatroom
 from fastapi.middleware.cors import CORSMiddleware
 from database import initialize_database
 
+
 app = FastAPI(
     title="Example API",
     description="This is an example API of FastAPI",
@@ -26,6 +27,7 @@ app.add_middleware(
     allow_headers=["*"],  
 )
 router = APIRouter()
+
 initialize_database()
 
 @app.get("/")
