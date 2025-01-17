@@ -14,7 +14,7 @@ if not os.path.exists(UPLOAD_DIR):
 
 user_counters = {}
 
-@router.post("/{user_id}")
+@router.post("/{user_id}", tags=["Preparation"])
 async def upload_image(user_id: int, files: List[UploadFile] = File(...)):
     file_details = []
 

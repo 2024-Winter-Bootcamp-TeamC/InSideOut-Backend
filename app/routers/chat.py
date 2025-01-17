@@ -6,7 +6,7 @@ router = APIRouter()
 
 
 
-@router.post("/test")
+@router.post("/test", tags=["Chats"])
 async def stream(user_input: UserInput):
     """
     POST 요청으로 사용자 입력을 받고, SSE로 데이터를 스트림 방식으로 전송
