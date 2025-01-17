@@ -1,4 +1,4 @@
-from models import Report,EmotionPercentages,Emotions  # Report는 SQLAlchemy 모델
+from models import Report,EmotionPercentage,Emotion  # Report는 SQLAlchemy 모델
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from datetime import datetime
@@ -67,7 +67,7 @@ def parse_percentages(all_emotion_percentage: dict, report_id: int, db: Session)
             try:
                 percentage_value = float(percentage)
                 
-                emotion_percentage_entry = EmotionPercentages(
+                emotion_percentage_entry = EmotionPercentage(
                     report_id=report_id,
                     emotion_id=emotion_id,
                     percentages=percentage_value
@@ -87,15 +87,15 @@ def get_report_by_report_id(report_id: int, db: Session):
     if not report_data or report_data.is_deleted:
         raise HTTPException(status_code=400, detail="Report already deleted")
     
-    emotion_data = db.query(EmotionPercentages.emotion_id, EmotionPercentages.percentages) \
-        .filter(EmotionPercentages.report_id == report_id, EmotionPercentages.is_deleted == False) \
+    emotion_data = db.query(EmotionPercentage.emotion_id, EmotionPercentage.percentages) \
+        .filter(EmotionPercentage.report_id == report_id, EmotionPercentage.is_deleted == False) \
         .all()
 
     max_percentage = max(emotion_data, key=lambda x: x[1]) if emotion_data else (None, 0)
     max_emotion_id = max_percentage[0] if max_percentage else None
 
-    wording_data = db.query(Emotions.wording) \
-        .filter(Emotions.id == max_emotion_id, Emotions.is_deleted == False) \
+    wording_data = db.query(Emotion.wording) \
+        .filter(Emotion.id == max_emotion_id, Emotion.is_deleted == False) \
         .first()
 
     emotions_percentage = {str(e[0]): e[1] for e in emotion_data}
@@ -111,7 +111,7 @@ def get_report_by_report_id(report_id: int, db: Session):
 
 def delete_report_by_report_id(report_id: int, db: Session):
     report = db.query(Report).filter(Report.id == report_id).first()
-    emotion_percentages=db.query(EmotionPercentages).filter(EmotionPercentages.report_id == report_id).all()
+    emotion_percentages=db.query(EmotionPercentage).filter(EmotionPercentage.report_id == report_id).all()
 
     if report is None:
         raise HTTPException(status_code=404, detail="Report not found")
