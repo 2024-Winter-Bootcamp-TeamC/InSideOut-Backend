@@ -57,3 +57,18 @@ async def ask_ai(user_input: UserInput):
             yield f"event: error\ndata: {str(e)}\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+@router.post("/report-ai", tags=["AI"])
+def report(request: createRequest):
+    """
+    AI를 통해 리포트에 들어가야 할 데이터를 생성하는 엔드포인트
+    """
+    try:
+        response = create_report(
+            client_message=request.client_message, 
+            emotion_message=request.emotion_message
+        )
+        return {"response": response}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
