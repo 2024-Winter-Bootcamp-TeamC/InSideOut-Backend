@@ -94,19 +94,21 @@ def get_report_by_report_id(report_id: int, db: Session):
     max_percentage = max(emotion_data, key=lambda x: x[1]) if emotion_data else (None, 0)
     max_emotion_id = max_percentage[0] if max_percentage else None
 
-    wording_data = db.query(Emotion.wording) \
+
+    wording = db.query(Emotion.emotion_name ,Emotion.wording) \
         .filter(Emotion.id == max_emotion_id, Emotion.is_deleted == False) \
         .first()
 
-    emotions_percentage = {str(e[0]): e[1] for e in emotion_data}
+    Emotion_percentage = {str(e[0]): e[1] for e in emotion_data}
+    wording_data={str(wording[0]):str(wording[1])}
 
     # 반환할 데이터를 하나의 딕셔너리로 묶기
     return {
         "title": report_data.title if report_data else "",
         "situation_summary": report_data.situation_summary if report_data else "",
         "emotion_summary": report_data.emotion_summary if report_data else {},
-        "wording": wording_data.wording if wording_data else "",
-        "emotion_percentage": emotions_percentage  
+        "wording": wording_data if wording_data else "",
+        "emotion_percentage": Emotion_percentage  
     }
 
 def delete_report_by_report_id(report_id: int, db: Session):

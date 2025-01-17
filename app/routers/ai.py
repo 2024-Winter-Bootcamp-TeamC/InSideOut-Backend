@@ -7,6 +7,9 @@ from fastapi.responses import StreamingResponse
 import anthropic
 import asyncio
 import os
+from crud.ai import get_ai_responses, create_report
+from pydantic import BaseModel
+from typing import List, Dict
 
 router = APIRouter()
 
@@ -14,10 +17,14 @@ router = APIRouter()
 api_key = os.getenv("ANTHROPIC_API_KEY")
 
 client = anthropic.Anthropic(api_key=api_key)
+
 class UserInput(BaseModel):
     prompt: str
     emotions: List[str]
-  
+
+class createRequest(BaseModel):
+    client_message: List[str]  
+    emotion_message: Dict[str, List[str]]
 
 @router.post("/ask-ai")
 async def ask_ai(user_input: UserInput):
@@ -39,11 +46,10 @@ async def ask_ai(user_input: UserInput):
                 max_tokens=600,
                 system=(
                     f"{system_prompt}"
-            ),
+                ),
                 messages=[
-       
-        {"role": "user", "content": f"{full_prompt}"},
-    ],
+                  {"role": "user", "content": f"{full_prompt}"},
+                ],
                 model="claude-3-5-haiku-20241022",
             ) as stream:
                 # Claude의 스트림 데이터를 SSE로 변환하여 클라이언트로 전달
@@ -57,7 +63,6 @@ async def ask_ai(user_input: UserInput):
             yield f"event: error\ndata: {str(e)}\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
-
 
 @router.post("/report-ai", tags=["AI"])
 def report(request: createRequest):
