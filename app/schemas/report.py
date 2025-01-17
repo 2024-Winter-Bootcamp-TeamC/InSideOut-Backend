@@ -29,6 +29,6 @@ class ReportResponse(ResponseStatus):
     title:str
     situation_summary:str
     emotion_summary: Dict[str, str]
-    wording:str
+    wording: Dict[str, str]
     emotion_percentage: Dict[str, float]
 

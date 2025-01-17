@@ -6,7 +6,7 @@ from utils import vision
 from typing import List
 from sqlalchemy.orm import Session
 import redis, json
-from crud.ai import get_ai_response
+from crud.ai import get_ai_responses
 import redis.asyncio as redis_asyncio
 
 redis_client = redis_asyncio.Redis(host="teamC_redis", port=6379, decode_responses=True)
@@ -44,7 +44,7 @@ async def file(db: Session, user_id: int, category: str, files: List[UploadFile]
 
     # 7가지 감정 한줄평
     prompt = json.dumps(redis_data, ensure_ascii=False)
-    response = await get_ai_response(prompt)
+    response = await get_ai_responses(prompt)
    
     await redis_save(user_id, redis_key, redis_data, category, content, response)
 

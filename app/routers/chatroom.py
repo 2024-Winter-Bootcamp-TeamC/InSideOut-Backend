@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from database import get_db, SessionLocal
+""" 해당 모듈들로 인해 실행 오류가 발생해서 주석 처리했습니다.
 from crud.chatroom import save_chat_message
-from crud.ai import get_ai_responses_stream
+from crud.ai import get_ai_responses_stream 
+"""
 from typing import List
 import redis
 import json
