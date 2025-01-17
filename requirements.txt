@@ -10,3 +10,4 @@ google-cloud-pubsub
 Pillow
 python-multipart
 python-dotenv
+redis

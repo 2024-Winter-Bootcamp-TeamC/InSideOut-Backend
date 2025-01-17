@@ -48,6 +48,8 @@ class Report(Base):
 
     # 외래 키 관계 설정
     user = relationship("User", back_populates="reports")
+    emotionpercentages = relationship("EmotionPercentages", back_populates="report")
+
     
 class Chatroom(Base):
     __tablename__ = "chatrooms"
@@ -62,23 +64,7 @@ class Chatroom(Base):
 
     # 관계 설정
     user = relationship("User", back_populates="chatrooms")
-    emotion_choices = relationship("EmotionChoose", back_populates="chatroom")
-
-
-class EmotionChoose(Base):
-    __tablename__ = "emotionchoose"
-
-    id = Column(Integer, primary_key=True)
-    chatroom_id = Column(Integer, ForeignKey("chatrooms.id"), nullable=False)  # 채팅방 ID
-    emotion_id = Column(Integer, ForeignKey("emotions.id"), nullable=False)  # 선택된 감정 ID
-    is_deleted = Column(Boolean, default=False)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
-    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST), onupdate=lambda: datetime.now(KST))
-
-    # 관계 설정
-    chatroom = relationship("Chatroom", back_populates="emotion_choices")
-    emotion = relationship("Emotion", back_populates="emotion_choices")
-    emotionpercentages = relationship("EmotionPercentages", back_populates="report")
+    emotion_chooses = relationship("EmotionChoose", back_populates="chatroom")
 
 
 class Emotions(Base):
@@ -100,6 +86,21 @@ class Emotions(Base):
     
     # 외래 키 관계 설정
     emotionpercentages = relationship("EmotionPercentages", back_populates="emotion")
+    emotion_choose = relationship("EmotionChoose", back_populates="emotion")
+
+class EmotionChoose(Base):
+    __tablename__ = "emotionchoose"
+
+    id = Column(Integer, primary_key=True)
+    chatroom_id = Column(Integer, ForeignKey("chatrooms.id"), nullable=False)  # 채팅방 ID
+    emotion_id = Column(Integer, ForeignKey("emotions.id"), nullable=False)  # 선택된 감정 ID
+    is_deleted = Column(Boolean, default=False)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
+    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST), onupdate=lambda: datetime.now(KST))
+
+    # 관계 설정
+    chatroom = relationship("Chatroom", back_populates="emotion_chooses")
+    emotion = relationship("Emotions", back_populates="emotion_choose")
 
 
 class EmotionPercentages(Base):
