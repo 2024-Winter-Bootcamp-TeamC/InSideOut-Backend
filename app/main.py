@@ -22,9 +22,10 @@ app = FastAPI(
 Base.metadata.create_all(bind=engine)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
-    allow_methods=["*"],  
-    allow_headers=["*"],  
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 router = APIRouter()
 
@@ -32,7 +33,7 @@ initialize_database()
 
 @app.get("/")
 def serve_html():
-    return FileResponse("test.html")
+    return FileResponse("aitest.html")
 app.include_router(user.router, prefix="/api/users")
 app.include_router(chat.router, prefix="/api/chats")
 app.include_router(report.router, prefix="/api/reports")
