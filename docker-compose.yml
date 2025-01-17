@@ -14,6 +14,7 @@ services:
       - .env
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+
   teamC_mysql:
     image: mysql:latest  
     environment:
@@ -25,6 +26,12 @@ services:
     volumes:
       - ./db_data:/var/lib/mysql
 
-
-  
-   
+  teamC_redis:
+    image: redis:latest
+    ports: 
+      - "6380:6379"
+    volumes: 
+      - /var/lib/docker/volumes/redis/_data
+      - /app/redis.conf
+    command: redis-server /app/redis.conf
+    

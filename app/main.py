@@ -6,6 +6,7 @@ from schemas.user import UserPostRequest
 from routers import user,chat, report, preparation, ai
 from fastapi.middleware.cors import CORSMiddleware
 
+
 app = FastAPI(
     title="Example API",
     description="This is an example API of FastAPI",
@@ -24,6 +25,7 @@ app.add_middleware(
     allow_headers=["*"],  
 )
 router = APIRouter()
+
 @app.get("/")
 def serve_html():
     return FileResponse("test.html")
@@ -31,4 +33,5 @@ app.include_router(user.router, prefix="/api/users")
 app.include_router(chat.router, prefix="/api/chats")
 app.include_router(report.router, prefix="/api/reports")
 app.include_router(preparation.router, prefix="/api/preparations")
-app.include_router(ai.router, prefix="/api/ai")  # AI 라우터 등록
+app.include_router(ai.router, prefix="/api/ai")  
+
