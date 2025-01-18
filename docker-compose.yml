@@ -17,8 +17,8 @@ services:
   teamC_mysql:
     image: mysql:latest  
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: InsideOut
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
       Lang: C.UTF-8
     ports:
       - "3307:3306"  
