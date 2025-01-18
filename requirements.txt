@@ -4,3 +4,12 @@ sqlalchemy
 pymysql
 cryptography
 pytz
+anthropic
+google-cloud-vision
+google-cloud-pubsub
+Pillow
+python-multipart
+python-dotenv
+redis
+aioredis
+aiofiles
