@@ -10,7 +10,7 @@ KST = pytz.timezone("Asia/Seoul")
 
 # 테이블 매핑
 class User(Base):
-    __tablename__ = 'users'  # 테이블 이름
+    __tablename__ = 'user'  # 테이블 이름
 
     id = Column(Integer, primary_key=True, index=True)
     nickname = Column(String(10), nullable=False, unique=True)
@@ -29,12 +29,12 @@ class User(Base):
 
 
 class Report(Base):
-    __tablename__ = 'reports'  # 테이블 이름
+    __tablename__ = 'report'  # 테이블 이름
 
     id = Column(Integer, primary_key=True, index=True)  # 기본 키
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)  # 외래 키
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)  # 외래 키
     title = Column(String(20), nullable=False) 
-    situation_summary = Column(String(100), nullable=False)  
+    situation_summary = Column(String(150), nullable=False)  
     emotion_summary = Column(JSON, nullable=False)  
     category = Column(String(10), nullable=False)  
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
@@ -48,12 +48,13 @@ class Report(Base):
 
     # 외래 키 관계 설정
     user = relationship("User", back_populates="reports")
+    emotion_percentages = relationship("EmotionPercentage", back_populates="report")
     
 class Chatroom(Base):
-    __tablename__ = "chatrooms"
+    __tablename__ = "chatroom"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)  
     update_report_id = Column(Integer, nullable=True)
     is_deleted = Column(Boolean, default=False)
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
@@ -62,27 +63,11 @@ class Chatroom(Base):
 
     # 관계 설정
     user = relationship("User", back_populates="chatrooms")
-    emotion_choices = relationship("EmotionChoose", back_populates="chatroom")
+    emotion_chooses = relationship("EmotionChoose", back_populates="chatroom")
 
 
-class EmotionChoose(Base):
-    __tablename__ = "emotionchoose"
-
-    id = Column(Integer, primary_key=True)
-    chatroom_id = Column(Integer, ForeignKey("chatrooms.id"), nullable=False)  # 채팅방 ID
-    emotion_id = Column(Integer, ForeignKey("emotions.id"), nullable=False)  # 선택된 감정 ID
-    is_deleted = Column(Boolean, default=False)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
-    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST), onupdate=lambda: datetime.now(KST))
-
-    # 관계 설정
-    chatroom = relationship("Chatroom", back_populates="emotion_choices")
-    emotion = relationship("Emotion", back_populates="emotion_choices")
-    emotionpercentages = relationship("EmotionPercentages", back_populates="report")
-
-
-class Emotions(Base):
-    __tablename__ = 'emotions'  # 테이블 이름
+class Emotion(Base):
+    __tablename__ = 'emotion'  # 테이블 이름
 
     id = Column(Integer, primary_key=True, index=True)  # 기본 키
     emotion_name = Column(String(10), nullable=False)
@@ -99,15 +84,33 @@ class Emotions(Base):
     is_deleted = Column(Boolean, default=False) 
     
     # 외래 키 관계 설정
-    emotionpercentages = relationship("EmotionPercentages", back_populates="emotion")
+    emotion_percentages = relationship("EmotionPercentage", back_populates="emotion")
+    emotion_chooses = relationship("EmotionChoose", back_populates="emotion")
+
+class EmotionChoose(Base):
+    __tablename__ = "emotion_choose"
+
+    id = Column(Integer, primary_key=True)
+    chatroom_id = Column(Integer, ForeignKey("chatroom.id"), nullable=False)  # 채팅방 ID
+    emotion_id = Column(Integer, ForeignKey("emotion.id"), nullable=False)  # 선택된 감정 ID
+    is_deleted = Column(Boolean, default=False)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
+    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST), onupdate=lambda: datetime.now(KST))
+
+    # 관계 설정
+    chatroom = relationship("Chatroom", back_populates="emotion_chooses")
+    emotion = relationship("Emotion", back_populates="emotion_chooses")
 
 
-class EmotionPercentages(Base):
-    __tablename__ = 'emotion_percentages'  
+
+
+
+class EmotionPercentage(Base):
+    __tablename__ = 'emotion_percentage'  
 
     id = Column(Integer, primary_key=True, index=True)  # 기본 키
-    report_id = Column(Integer, ForeignKey('reports.id'), nullable=False)  # 외래 키
-    emotion_id = Column(Integer, ForeignKey('emotions.id'), nullable=False)  # 외래 키
+    report_id = Column(Integer, ForeignKey('report.id'), nullable=False)  # 외래 키
+    emotion_id = Column(Integer, ForeignKey('emotion.id'), nullable=False)  # 외래 키
     percentages = Column(Float, nullable=False)  
 
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
@@ -120,5 +123,5 @@ class EmotionPercentages(Base):
     is_deleted = Column(Boolean, default=False) 
 
     # 외래 키 관계 설정
-    report = relationship("Report", back_populates="emotionpercentages")
-    emotion = relationship("Emotions", back_populates="emotionpercentages")
+    report = relationship("Report", back_populates="emotion_percentages")
+    emotion = relationship("Emotion", back_populates="emotion_percentages")

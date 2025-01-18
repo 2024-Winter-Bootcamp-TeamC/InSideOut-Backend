@@ -4,8 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from database import get_db, SessionLocal
-from crud.chatroom import save_chat_message
-from crud.ai import get_ai_responses_stream
+
 from typing import List
 import redis
 import json

@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from models import Emotions
+from models import Emotion
 from datetime import datetime
 import pytz
 
@@ -27,7 +27,7 @@ def initialize_database():
         # 초기 감정 데이터
         emotions = [
             #기쁨이 1
-            Emotions(
+            Emotion(
                 emotion_name="기쁨이",
                 explanation="기분이 좋은 상태",
                 wording="기쁨이 명대사",
@@ -37,7 +37,7 @@ def initialize_database():
             ),
 
             #슬픔이 2
-            Emotions(
+            Emotion(
                 emotion_name="슬픔이",
                 explanation="마음이 아프거나 슬픈 상태",
                 wording="슬픔이 명대사",
@@ -46,7 +46,7 @@ def initialize_database():
                 updated_at=datetime.now(KST)
             ),
             #버럭이 3
-            Emotions(
+            Emotion(
                 emotion_name="버럭이",
                 explanation="화가난 상태",
                 wording="버럭이 명대사",
@@ -55,7 +55,7 @@ def initialize_database():
                 updated_at=datetime.now(KST)
             ),
             #까칠이 4
-            Emotions(
+            Emotion(
                 emotion_name="까칠이",
                 explanation="까칠한 상태",
                 wording="까칠이이 명대사",
@@ -64,7 +64,7 @@ def initialize_database():
                 updated_at=datetime.now(KST)
             ),
             #소심이 5
-            Emotions(
+            Emotion(
                 emotion_name="소심이",
                 explanation="소심한 상태",
                 wording="소심이 명대사",
@@ -73,7 +73,7 @@ def initialize_database():
                 updated_at=datetime.now(KST)
             ),
             #불안이 6
-            Emotions(
+            Emotion(
                 emotion_name="불안이",
                 explanation="불안한 상태",
                 wording="불안이 명대사",
@@ -82,7 +82,7 @@ def initialize_database():
                 updated_at=datetime.now(KST)
             ),
             #당황이 7
-            Emotions(
+            Emotion(
                 emotion_name="당황이",
                 explanation="당황한 상태",
                 wording="당황이 명대사",
