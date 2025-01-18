@@ -95,16 +95,15 @@ def get_report_by_report_id(report_id: int,  db: Session):
     if not report_data or report_data.is_deleted:
         raise HTTPException(status_code=400, detail="Report already deleted")
     
-    emotion_data = db.query(EmotionPercentage.emotion_id, EmotionPercentage.percentages) 
-        .filter(EmotionPercentage.report_id == report_id, EmotionPercentage.is_deleted == False) 
+    emotion_data = db.query(EmotionPercentage.emotion_id, EmotionPercentage.percentages) \
+        .filter(EmotionPercentage.report_id == report_id, EmotionPercentage.is_deleted == False) \
         .all()
 
     max_percentage = max(emotion_data, key=lambda x: x[1]) if emotion_data else (None, 0)
     max_emotion_id = max_percentage[0] if max_percentage else None
 
-    wording = db.query(Emotion.emotion_name ,Emotion.wording) 
-
-        .filter(Emotion.id == max_emotion_id, Emotion.is_deleted == False) 
+    wording = db.query(Emotion.emotion_name, Emotion.wording) \
+        .filter(Emotion.id == max_emotion_id, Emotion.is_deleted == False) \
         .first()
 
     Emotion_percentage = {str(e[0]): e[1] for e in emotion_data}
