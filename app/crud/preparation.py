@@ -44,8 +44,8 @@ async def file(db: Session, user_id: int, category: str, files: List[UploadFile]
 
     return {"message": "success"}
 
-async def redis_save(user_id: int,redis_key: str, redis_data:dict, category:str, content:str, response:str):
+async def redis_save(user_id: int,redis_key: str, redis_data:dict, category:str, content:str):
     redis_client.set(redis_key, json.dumps(redis_data, ensure_ascii=False).encode('utf-8'))
     redis_client.set(f"category_{user_id}", json.dumps(f"category:{category}", ensure_ascii=False).encode('utf-8'))
     redis_client.set(f"content_{user_id}", json.dumps(f"content:{content}", ensure_ascii=False).encode('utf-8'))
-    redis_client.set(f"emotions_{user_id}", json.dumps(f"emotions:{response}", ensure_ascii=False).encode('utf-8'))
+    # redis_client.set(f"emotions_{user_id}", json.dumps(f"emotions:{response}", ensure_ascii=False).encode('utf-8'))
