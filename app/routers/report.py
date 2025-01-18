@@ -15,8 +15,10 @@ def view_report_list(user_id: int, db: Session = Depends(get_db)):
         raise e
 
 
+
 @router.post("/{user_id}", description="보고서 생성", response_model=CreateResponse, tags=["Reports"])
 def create_report(user_id: int, db: Session = Depends(get_db)):
+
     try:
         response = ReportServices.post_report_by_user_id(user_id, db)
         return CreateResponse(status="success", message="Data posted successfully", report_id=response, tags=["Reports"])
