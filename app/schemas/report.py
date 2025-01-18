@@ -32,3 +32,6 @@ class ReportResponse(ResponseStatus):
     wording: Dict[str, str]
     emotion_percentage: Dict[str, float]
 
+class createReportRequest(BaseModel):
+    client_message: List[str]  
+    emotion_message: List[str]

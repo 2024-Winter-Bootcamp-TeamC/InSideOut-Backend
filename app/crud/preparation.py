@@ -1,12 +1,11 @@
 import io
 import os
-from PIL import Image, ImageOps
-from fastapi import UploadFile, HTTPException, status, File, Form
+from fastapi import UploadFile, File, Form
 from utils import vision 
 from typing import List
 from sqlalchemy.orm import Session
 import redis, json
-from crud.ai import get_ai_responses
+# from crud.ai import get_ai_responses
 import redis.asyncio as redis_asyncio
 
 redis_client = redis_asyncio.Redis(host="teamC_redis", port=6379, decode_responses=True)
@@ -17,7 +16,6 @@ if not os.path.exists(UPLOAD_DIR):
 
 user_counters = {}
 
-# 이미지 검사
 async def file(db: Session, user_id: int, category: str, files: List[UploadFile] = File(...), content: str = Form(...)):
     file_details = []
     global user_counters
@@ -30,23 +28,19 @@ async def file(db: Session, user_id: int, category: str, files: List[UploadFile]
         filename = f"{user_id}_{n}.jpeg"
         user_counters[user_id] += 1  
 
-        # 파일 저장
         file_path = os.path.join(UPLOAD_DIR, filename)
         with open(file_path, "wb") as buffer:
             buffer.write(await file.read())
 
-    # 비전 API를 이용하여 이미지를 텍스트로 변환
     image = await vision.process_user_images(user_id)
 
-    # 전체 내용 Redis에 저장
     redis_key = f"user_{user_id}"
     redis_data = {"category": category, "content": content, "image": image}
 
-    # 7가지 감정 한줄평
     prompt = json.dumps(redis_data, ensure_ascii=False)
-    response = await get_ai_responses(prompt)
+    # response = await get_ai_responses(prompt)
    
-    await redis_save(user_id, redis_key, redis_data, category, content, response)
+    await redis_save(user_id, redis_key, redis_data, category, content)
 
     return {"message": "success"}
 
