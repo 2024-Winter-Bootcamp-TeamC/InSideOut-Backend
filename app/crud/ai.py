@@ -3,6 +3,7 @@ import os
 import json
 from typing import List
 from utils.prompt import REPORT_PROMPTS
+import re
 
 api_key = os.getenv("ANTHROPIC_API_KEY")
 
@@ -82,6 +83,31 @@ async def seven_ai_one_response(prompts:str):
             ]
         )
         
-        return response.content 
+       
+        if isinstance(response.content, list):
+            raw_content = response.content[0]  # 리스트의 첫 번째 요소 사용
+        else:
+            raw_content = response.content  # 리스트가 아니면 그대로 사용
+
+        # 정규식을 이용해 텍스트 추출
+        match = re.search(r"text='(.*?)', type='text'", str(raw_content), re.DOTALL)
+        if match:
+            parsed_content = match.group(1)
+        else:
+            parsed_content = str(raw_content)  # 파싱 실패 시 원본 사용
+
+        # \n 제거 및 텍스트 분리
+        parsed_content = parsed_content.replace("\\n", "\n")  # \n을 실제 줄바꿈으로 변환
+        lines = parsed_content.strip().split("\n")  # 줄바꿈 기준으로 분리
+
+        # 감정별로 딕셔너리 생성
+        emotion_dict = {}
+        for line in lines:
+            if ": " in line:  # "감정이: 내용" 형식만 처리
+                emotion, advice = line.split(": ", 1)
+                emotion_dict[emotion.strip()] = advice.strip()
+
+        return emotion_dict
+
     except Exception as e:
         return f"Error: {str(e)}"

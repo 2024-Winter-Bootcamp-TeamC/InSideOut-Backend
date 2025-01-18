@@ -38,11 +38,13 @@ async def file(db: Session, user_id: int, category: str, files: List[UploadFile]
     redis_key = f"user_{user_id}"
     redis_data = {"category": category, "content": content, "image": image}
 
+    
     # 7가지 감정 한줄평
     prompts = json.dumps(redis_data, ensure_ascii=False)
     response = await seven_ai_one_response(prompts)
     
-    await redis_save(user_id, redis_key, redis_data, category, content ,response)
+    await redis_save(user_id, redis_key, redis_data, category, content, response)
+    
 
     return {"message": "success"}
 

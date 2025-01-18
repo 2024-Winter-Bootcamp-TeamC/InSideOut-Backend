@@ -2,7 +2,7 @@ from fastapi import FastAPI,APIRouter
 from fastapi.responses import FileResponse
 from database import engine
 from models import Base
-from routers import user,report, preparation, ai ,chatroom
+from routers import user,report, preparation, ai ,chatroom, emotions
 from fastapi.middleware.cors import CORSMiddleware
 from database import initialize_database
 
@@ -39,3 +39,4 @@ app.include_router(report.router, prefix="/api/reports")
 app.include_router(preparation.router, prefix="/api/preparations")
 app.include_router(ai.router, prefix="/api/ai")
 app.include_router(chatroom.router, prefix="/chatrooms", tags=["Chatrooms"])
+app.include_router(emotions.router, prefix="/emotions")
