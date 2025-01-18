@@ -3,6 +3,10 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from datetime import datetime
 import json
+import redis
+
+
+redis_client = redis.Redis(host="teamC_redis", port=6379, decode_responses=True)
 
 def get_reports_by_user_id(user_id: int, db: Session):
     reports = db.query(Report).filter(Report.user_id == user_id, Report.is_deleted == False).all()
@@ -22,9 +26,13 @@ def get_reports_by_user_id(user_id: int, db: Session):
 
 def post_report_by_user_id(user_id: int, db: Session):
 
+    category_key = f"category_{user_id}"
+    content_key = f"content_{user_id}"
+
     # 카테고리와 상황요약은 Redis 만들어지면 구현
-    category="Redis" 
-    situation_summary="Redis 만들어지면 구현"
+    category=redis_client.get(category_key)
+    situation_summary=redis_client.get(content_key)
+    
 
     #JSON 형태로 받음
     all_emotion_summary = {"기쁨이":"나는 기뻐","슬픔이":"나는 슬퍼", "버럭이":"나는 화나"}
@@ -81,22 +89,22 @@ def parse_percentages(all_emotion_percentage: dict, report_id: int, db: Session)
 
 
 
-def get_report_by_report_id(report_id: int, db: Session):
+def get_report_by_report_id(report_id: int,  db: Session):
     report_data = db.query(Report).filter(Report.id == report_id, Report.is_deleted == False).first()
     
     if not report_data or report_data.is_deleted:
         raise HTTPException(status_code=400, detail="Report already deleted")
     
-    emotion_data = db.query(EmotionPercentage.emotion_id, EmotionPercentage.percentages) \
-        .filter(EmotionPercentage.report_id == report_id, EmotionPercentage.is_deleted == False) \
+    emotion_data = db.query(EmotionPercentage.emotion_id, EmotionPercentage.percentages) 
+        .filter(EmotionPercentage.report_id == report_id, EmotionPercentage.is_deleted == False) 
         .all()
 
     max_percentage = max(emotion_data, key=lambda x: x[1]) if emotion_data else (None, 0)
     max_emotion_id = max_percentage[0] if max_percentage else None
 
+    wording = db.query(Emotion.emotion_name ,Emotion.wording) 
 
-    wording = db.query(Emotion.emotion_name ,Emotion.wording) \
-        .filter(Emotion.id == max_emotion_id, Emotion.is_deleted == False) \
+        .filter(Emotion.id == max_emotion_id, Emotion.is_deleted == False) 
         .first()
 
     Emotion_percentage = {str(e[0]): e[1] for e in emotion_data}

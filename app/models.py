@@ -28,12 +28,13 @@ class User(Base):
 
 class Report(Base):
     __tablename__ = 'report'  # 테이블 이름
+
     id = Column(Integer, primary_key=True, index=True)  # 기본 키
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)  # 외래 키
-    title = Column(String(20), nullable=False)
-    situation_summary = Column(String(150), nullable=False)
-    emotion_summary = Column(JSON, nullable=False)
-    category = Column(String(10), nullable=False)
+    title = Column(String(20), nullable=False) 
+    situation_summary = Column(String(150), nullable=False)  
+    emotion_summary = Column(JSON, nullable=False)  
+    category = Column(String(10), nullable=False)  
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
     updated_at = Column(
         DateTime,
@@ -46,11 +47,10 @@ class Report(Base):
     user = relationship("User", back_populates="reports")
     emotion_percentages = relationship("EmotionPercentage", back_populates="report")
 
-
 class Chatroom(Base):
     __tablename__ = "chatroom"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)  
     update_report_id = Column(Integer, nullable=True)
     is_deleted = Column(Boolean, default=False)
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
@@ -58,8 +58,7 @@ class Chatroom(Base):
     # 관계 설정
     user = relationship("User", back_populates="chatrooms")
     emotion_chooses = relationship("EmotionChoose", back_populates="chatroom")
-
-
+    
 class Emotion(Base):
     __tablename__ = 'emotion'  # 테이블 이름
     id = Column(Integer, primary_key=True, index=True)  # 기본 키
@@ -109,3 +108,4 @@ class EmotionPercentage(Base):
     # 외래 키 관계 설정
     report = relationship("Report", back_populates="emotion_percentages")
     emotion = relationship("Emotion", back_populates="emotion_percentages")
+
