@@ -13,6 +13,8 @@ services:
       - .env
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_VISION_API_KEY=${GOOGLE_VISION_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
 
   teamC_mysql:
     image: mysql:latest  
