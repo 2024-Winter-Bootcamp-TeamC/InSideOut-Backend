@@ -7,7 +7,6 @@ import asyncio
 import os
 from crud.ai import  create_report
 from schemas.ai import UserInput
-from schemas.report import createReportRequest
 
 
 router = APIRouter()
@@ -52,10 +51,10 @@ async def ask_ai(user_input: UserInput):
     return StreamingResponse(event_stream(), media_type="text/event-stream")
 
 @router.post("/report-ai", tags=["AI"])
-def report(request: createReportRequest):
+def report(client_message:str, emotion_message:str):
 
     response = create_report(
-        client_message=request.client_message, 
-        emotion_message=request.emotion_message
+        client_message=client_message, 
+        emotion_message=emotion_message
     )
-    return {"response": response}
+    return response
