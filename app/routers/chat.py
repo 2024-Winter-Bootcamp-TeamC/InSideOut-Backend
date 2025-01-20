@@ -13,7 +13,7 @@ from elevenlabs.client import ElevenLabs
 import json
 import logging
 from utils.tts import text_to_speech_stream, emotion_to_voice_id
-# from schemas.chatroom import createRequest, create_report
+from schemas.chatroom import createRequest, create_report
 
 router = APIRouter()
 
@@ -129,17 +129,17 @@ async def async_wrap(generator):
 
 
 
-#보고서 생성(성국)
-# @router.post("/report-ai", tags=["AI"])
-# def report(request: createRequest):
-#     """
-#     AI를 통해 리포트에 들어가야 할 데이터를 생성하는 엔드포인트
-#     """
-#     try:
-#         response = create_report(
-#             client_message=request.client_message, 
-#             emotion_message=request.emotion_message
-#         )
-#         return {"response": response}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+#보고서 생성
+@router.post("/report-ai", tags=["AI"])
+def report(request: createRequest):
+    """
+    AI를 통해 리포트에 들어가야 할 데이터를 생성하는 엔드포인트
+    """
+    try:
+        response = create_report(
+            client_message=request.client_message, 
+            emotion_message=request.emotion_message
+        )
+        return {"response": response}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
