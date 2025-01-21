@@ -2,11 +2,9 @@ from models import Report,EmotionPercentage,Emotion  # Report는 SQLAlchemy 모�
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from datetime import datetime
-import json
-import redis
 from crud.chatroom import delete_chatroom
-
-redis_client = redis.Redis(host="teamC_redis", port=6379, decode_responses=True)
+from crud.ai import create_report
+from crud.preparation import redis_client
 
 def get_reports_by_user_id(user_id: int, db: Session):
     reports = db.query(Report).filter(Report.user_id == user_id, Report.is_deleted == False).all()
@@ -24,20 +22,29 @@ def get_reports_by_user_id(user_id: int, db: Session):
 
     return report_list
 
-def post_report_by_user_id(user_id: int, db: Session):
+async def post_report_by_user_id(user_id: int, chatroom_id: int, db: Session):
 
     category_key = f"category_{user_id}"
     content_key = f"content_{user_id}"
+    chat_key = f"chat_{chatroom_id}"
+    chat_user_input_key = f"chat_user_input_{chatroom_id}"
 
-    # 카테고리와 상황요약은 Redis 만들어지면 구현
-    category=redis_client.get(category_key)
-    situation_summary=redis_client.get(content_key)
-    
+    # Redis에서 값 가져오기
+    category = await redis_client.get(category_key)
+    situation_summary = await redis_client.get(content_key)
+    client_message = await redis_client.get(chat_user_input_key)
+    emotion_message = await redis_client.get(chat_key)
 
-    #JSON 형태로 받음
-    all_emotion_summary = {"기쁨이":"나는 기뻐","슬픔이":"나는 슬퍼", "버럭이":"나는 화나"}
-    all_emotion_percentage ={"기쁨이":19.8,"슬픔이":60.1, "버럭이":20.1}
-    
+    if not client_message or not emotion_message:
+        raise HTTPException(status_code=400, detail="Invalid input data from Redis.")
+
+    # Redis에서 가져온 값 삭제
+    await redis_client.delete(category_key)
+    await redis_client.delete(content_key)
+    await redis_client.delete(chat_key)
+    await redis_client.delete(chat_user_input_key)
+
+    all_emotion_percentage, all_emotion_summary = create_report(client_message, emotion_message)
 
     response_data = Report(
         user_id=user_id,
@@ -49,12 +56,15 @@ def post_report_by_user_id(user_id: int, db: Session):
 
     # DB에 추가
     db.add(response_data)
-    db.commit() 
+    db.commit()
     db.refresh(response_data)
 
     parse_percentages(all_emotion_percentage, response_data.id, db)
+
     delete_chatroom(db, chatroom_id)
+
     return response_data.id
+
 
 def parse_percentages(all_emotion_percentage: dict, report_id: int, db: Session):
     # 감정 이름과 아이디 매핑

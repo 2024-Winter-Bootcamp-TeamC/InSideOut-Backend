@@ -2,8 +2,8 @@ from fastapi import FastAPI,APIRouter
 from fastapi.responses import FileResponse
 from database import engine
 from models import Base
+from routers import user,report, preparation ,chatroom, emotions, chat
 from schemas.user import UserPostRequest
-from routers import user,chat, report, preparation, chatroom
 from fastapi.middleware.cors import CORSMiddleware
 from database import initialize_database
 
@@ -41,5 +41,6 @@ def serve_html():
 app.include_router(user.router, prefix="/api/users")
 app.include_router(report.router, prefix="/api/reports")
 app.include_router(preparation.router, prefix="/api/preparations")
+app.include_router(chatroom.router, prefix="/api/chatrooms", tags=["Chatrooms"])
+app.include_router(emotions.router, prefix="/api/emotions", tags=["Emotions"])
 app.include_router(chat.router, prefix="/api/chats")
-app.include_router(chatroom.router, prefix="/chatrooms", tags=["Chatrooms"])
