@@ -6,7 +6,6 @@
   <title>AI Emotion Test</title>
   <script>
     async function testAPI() {
-      const prompt = document.getElementById("prompt").value;
       const emotions = Array.from(document.querySelectorAll('input[name="emotions"]:checked')).map(
         (checkbox) => checkbox.value
       );
@@ -16,10 +15,10 @@
         return;
       }
 
-      const payload = JSON.stringify({ prompt, emotions });
+      const payload = JSON.stringify({ emotions });
 
       // SSE 연결
-      const chatroomId = 1; // 임시로 1번 채팅방으로 설정
+      const chatroomId = 2; // 임시로 1번 채팅방으로 설정
 
       const eventSource = new EventSource(`http://localhost:8000/api/chats/sse/${chatroomId}`);
       const responseDiv = document.getElementById("responses");
@@ -43,9 +42,8 @@
         eventSource.close();
       };
 
-      // POST 요청으로 AI 처리 시작
       
-      const postResponse = await fetch(`http://localhost:8000/api/chats/${chatroomId}/messages`, {
+      const postResponse = await fetch(`http://localhost:8000/api/chats/${chatroomId}/discussions?user_id=1`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -112,9 +110,6 @@
 <body>
   <h1>AI Emotion Test</h1>
   <form onsubmit="event.preventDefault(); testAPI();">
-    <label for="prompt">질문:</label>
-    <input type="text" id="prompt" name="prompt" required>
-    <br><br>
 
     <p>감정 선택 (최대 3개):</p>
     <input type="checkbox" id="joy" name="emotions" value="기쁨이">
