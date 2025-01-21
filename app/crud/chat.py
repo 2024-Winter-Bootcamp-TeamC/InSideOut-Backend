@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import Session
 import asyncio
 import json
@@ -26,7 +26,8 @@ async def generate_event_stream(
     chatroom_id: int, 
     emotions: List[str], 
     db: Session, 
-    mode: str
+    mode: str,
+    user_prompt: Optional[str] = None
 ):
     try:
         total_chat_buffer = ""
@@ -104,8 +105,8 @@ async def generate_event_stream(
         )
         if mode == "messages":
             await redis_client.set(
-                f"chat_user_input_{user_id}",
-                json.dumps({"user_input": preparation}, ensure_ascii=False).encode("utf-8"),
+                f"chat_user_input_{chatroom_id}",
+                json.dumps({"user_input": user_prompt}, ensure_ascii=False).encode("utf-8"),
             )
 
 

@@ -1,9 +1,7 @@
 # app/routers/chat.py
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 import asyncio
-from schemas.report import createReportRequest
-from crud.ai import create_report
 from schemas.chat import UserInput, Discussion
 from database import get_db
 from sqlalchemy.orm import Session
@@ -28,7 +26,7 @@ async def sse_connect(chatroom_id: int):
 async def ask_ai_messages(chatroom_id: int, user_id: int, user_input: UserInput, db: Session = Depends(get_db)):
     ValidateUserandChatRoom(user_id, chatroom_id, db)
     return StreamingResponse(
-        generate_event_stream(user_id, chatroom_id, user_input.emotions, db, mode="messages"),
+        generate_event_stream(user_id, chatroom_id, user_input.emotions, db,mode="messages", user_prompt=user_input.prompt),
         media_type="text/event-stream",
     )
 
@@ -39,17 +37,3 @@ async def ask_ai_discussions(chatroom_id: int, user_id: int, discuss: Discussion
         generate_event_stream(user_id, chatroom_id, discuss.emotions, db, mode="discussions"),
         media_type="text/event-stream",
     )
-
-@router.post("/report-ai", tags=["AI"])
-def report(request: createReportRequest ):
-    """
-    AI를 통해 리포트에 들어가야 할 데이터를 생성하는 엔드포인트
-    """
-    try:
-        response = create_report(
-            client_message=request.client_message, 
-            emotion_message=request.emotion_message
-        )
-        return {"response": response}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
