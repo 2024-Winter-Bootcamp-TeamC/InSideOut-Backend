@@ -111,8 +111,6 @@ async def ask_ai(chatroom_id: int,user_id:int, user_input: UserInput,db: Session
                             }
                             yield f"data: {json.dumps(data)}\n\n"
                         total_chat_buffer += chat_buffer + "\n"  # 모든 감정 데이터 누적
-                        emotion_chat_data = {"emotion_chat": total_chat_buffer}
-                        combined_data = json.dumps( emotion_chat_data, ensure_ascii=False)
 
                 except Exception as inner_error:
 
@@ -126,8 +124,8 @@ async def ask_ai(chatroom_id: int,user_id:int, user_input: UserInput,db: Session
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
             
         finally:
-            await redis_client.set(f"chat_{chatroom_id}", combined_data.encode('utf-8'))
-            await redis_client.set(f"chat_user_input_{user_id}", user_input.prompt.encode('utf-8'))
+            await redis_client.set(f"chat_{chatroom_id}", json.dumps({total_chat_buffer},ensure_ascii=False).encode('utf-8'))
+            await redis_client.set(f"chat_user_input_{user_id}", json.dumps({user_input.prompt},ensure_ascii=False).encode('utf-8'))
         
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
@@ -214,7 +212,7 @@ async def ask_ai(chatroom_id: int, user_id:int, discuss: Discussion,db: Session 
                 yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
                 
         finally:
-                await redis_client.append(f"chat_{chatroom_id}", total_chat_buffer)
+                await redis_client.set(f"chat_{chatroom_id}", json.dumps({total_chat_buffer},ensure_ascii=False).encode('utf-8'))
             
         
 

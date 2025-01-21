@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from datetime import datetime
 import json
 import redis
-
+from crud.chatroom import delete_chatroom
 
 redis_client = redis.Redis(host="teamC_redis", port=6379, decode_responses=True)
 
@@ -53,7 +53,7 @@ def post_report_by_user_id(user_id: int, db: Session):
     db.refresh(response_data)
 
     parse_percentages(all_emotion_percentage, response_data.id, db)
-
+    delete_chatroom(db, chatroom_id)
     return response_data.id
 
 def parse_percentages(all_emotion_percentage: dict, report_id: int, db: Session):
