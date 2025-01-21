@@ -4,7 +4,10 @@ import json
 from typing import List
 from utils.prompt import REPORT_PROMPTS
 import re
-
+from crud.chatroom import get_chatroom
+from crud.user import find_user
+from sqlalchemy.orm import Session
+from fastapi import HTTPException
 api_key = os.getenv("ANTHROPIC_API_KEY")
 
 client = anthropic.Anthropic(api_key=api_key)
@@ -111,3 +114,11 @@ async def seven_ai_one_response(prompts:str):
 
     except Exception as e:
         return f"Error: {str(e)}"
+    
+def ValidateUserandChatRoom (user_id: int, chatroom_id: int, db: Session):
+    ChatRoom = get_chatroom(db,chatroom_id)
+    if ChatRoom is None:
+        raise HTTPException(status_code=404, detail="ChatRoom not found")
+    User = find_user(user_id,db)
+    if ChatRoom.user_id != user_id:
+        raise HTTPException(status_code=404, detail="채팅방 유저가 아닙니다")
