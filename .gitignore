@@ -3,3 +3,8 @@ db_data
 __pycache__
 .env
 redis.conf
+grafana/data/alerting
+grafana/data/csv
+grafana/data/pdf
+grafana/data/plugins
+grafana/data/png
