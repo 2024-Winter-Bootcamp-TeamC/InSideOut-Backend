@@ -26,7 +26,7 @@ async def sse_connect(chatroom_id: int):
 async def ask_ai_messages(chatroom_id: int, user_id: int, user_input: UserInput, db: Session = Depends(get_db)):
     ValidateUserandChatRoom(user_id, chatroom_id, db)
     return StreamingResponse(
-        generate_event_stream(user_id, chatroom_id, user_input.emotions, db,mode="messages", user_prompt=user_input.user_prompt),
+        generate_event_stream(user_id, chatroom_id, user_input.emotions, db,mode="messages", user_prompt=user_input.prompt),
         media_type="text/event-stream",
     )
 
