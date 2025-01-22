@@ -1,9 +1,19 @@
 from sqlalchemy import create_engine, MetaData
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from models import Emotion
 from datetime import datetime
 import pytz
+import os
+from sqlalchemy.pool import StaticPool
+
+if os.getenv("TESTING") == "True":
+    engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+else:
+    engine = create_engine(os.getenv('MYSQL_DATABASE_URL'))
 
 engine = create_engine('mysql+pymysql://root:root@teamC_mysql:3306/InsideOut')
 meta = MetaData()
@@ -97,3 +107,11 @@ def initialize_database():
         db.commit()
     finally:
         db.close()
+
+def clear_db():
+    meta = MetaData()
+    meta.reflect(bind=engine)
+    with engine.connect() as conn:
+        for table in reversed(meta.sorted_tables):
+                conn.execute(table.delete())
+        conn.commit()
