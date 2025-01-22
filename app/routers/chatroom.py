@@ -18,3 +18,4 @@ def create_chatroom_with_emotions(
     emotion_choose_ids = create_emotion_chooses(db, chatroom_id, request.emotion_ids)
 
     return {"chatroom_id": chatroom_id, "emotion_choose_ids": emotion_choose_ids}
+

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Emotion Test</title>
+  <script>
+    async function testAPI() {
+      const emotions = Array.from(document.querySelectorAll('input[name="emotions"]:checked')).map(
+        (checkbox) => checkbox.value
+      );
+
+      if (emotions.length === 0) {
+        alert("최소 하나의 감정을 선택하세요.");
+        return;
+      }
+
+      const payload = JSON.stringify({ emotions });
+
+      // SSE 연결
+      const chatroomId = 2; // 임시로 1번 채팅방으로 설정
+
+      const eventSource = new EventSource(`http://localhost:8000/api/chats/sse/${chatroomId}`);
+      const responseDiv = document.getElementById("responses");
+      responseDiv.innerHTML = ""; // 이전 응답 초기화
+
+      const combinedResponses = {}; // 감정별로 데이터를 누적할 객체
+      
+      eventSource.onopen = () => {
+        console.log("SSE 연결 성공");
+      };
+
+      eventSource.onmessage = (event) => {
+        console.log("SSE 메시지:", event.data);
+        const pingElement = document.createElement("p");
+        pingElement.textContent = `SSE Ping: ${event.data}`;
+        responseDiv.appendChild(pingElement);
+      };
+
+      eventSource.onerror = (error) => {
+        console.error("SSE 오류:", error);
+        eventSource.close();
+      };
+
+      
+      const postResponse = await fetch(`http://localhost:8000/api/chats/${chatroomId}/discussions?user_id=1`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: payload,
+      });
+
+      if (!postResponse.ok) {
+        console.error("POST 요청 실패:", await postResponse.text());
+        alert("POST 요청에 실패했습니다.");
+        return;
+      }
+
+      const postReader = postResponse.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      // 청크 데이터를 읽어와 처리
+      while (true) {
+        const { done, value } = await postReader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        chunk.split("\n\n").forEach((line) => {
+          if (line.startsWith("data:")) {
+            const data = JSON.parse(line.replace("data:", "").trim());
+            console.log("AI 응답 데이터:", data);
+
+            if (data.type === "content_chunk") {
+              // 감정별 데이터를 누적
+              if (!combinedResponses[data.emotion]) {
+                combinedResponses[data.emotion] = "";
+              }
+              combinedResponses[data.emotion] += data.content + " ";
+
+              // 화면에 업데이트
+              const emotionElement = document.getElementById(`emotion-${data.emotion}`);
+              if (emotionElement) {
+                emotionElement.textContent = `${data.emotion} : ${combinedResponses[data.emotion].trim()}`;
+              } else {
+                const textElement = document.createElement("p");
+                textElement.id = `emotion-${data.emotion}`;
+                textElement.textContent = `${data.emotion} : ${combinedResponses[data.emotion].trim()}`;
+                responseDiv.appendChild(textElement);
+              }
+
+              // 오디오 데이터 재생
+              if (data.audio) {
+                const audioElement = document.createElement("audio");
+                audioElement.controls = true;
+                audioElement.src = `data:audio/mp3;base64,${data.audio}`;
+                responseDiv.appendChild(audioElement);
+              }
+            } else if (data.type === "error") {
+              console.error("AI 처리 중 에러 발생:", data.message);
+            }
+          }
+        });
+      }
+
+      eventSource.close(); // SSE 연결 종료
+    }
+  </script>
+</head>
+<body>
+  <h1>AI Emotion Test</h1>
+  <form onsubmit="event.preventDefault(); testAPI();">
+
+    <p>감정 선택 (최대 3개):</p>
+    <input type="checkbox" id="joy" name="emotions" value="기쁨이">
+    <label for="joy">기쁨이</label>
+    <input type="checkbox" id="sadness" name="emotions" value="슬픔이">
+    <label for="sadness">슬픔이</label>
+    <input type="checkbox" id="anger" name="emotions" value="버럭이">
+    <label for="anger">버럭이</label>
+    <input type="checkbox" id="disgust" name="emotions" value="까칠이">
+    <label for="disgust">까칠이</label>
+    <input type="checkbox" id="fear" name="emotions" value="소심이">
+    <label for="fear">소심이</label>
+    <input type="checkbox" id="anxiety" name="emotions" value="불안이">
+    <label for="anxiety">불안이</label>
+    <input type="checkbox" id="embarrassment" name="emotions" value="당황이">
+    <label for="embarrassment">당황이</label>
+    <br><br>
+
+    <button type="submit">질문 보내기</button>
+  </form>
+
+  <div id="responses" style="margin-top: 20px;">
+    <h2>응답:</h2>
+  </div>
+</body>
+</html>

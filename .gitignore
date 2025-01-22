@@ -3,3 +3,8 @@ db_data
 __pycache__
 .env
 redis.conf
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+ethereal-creek-448408-k4-87309d3b45c5.json

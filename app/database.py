@@ -15,6 +15,7 @@ if os.getenv("TESTING") == "True":
 else:
     engine = create_engine(os.getenv('MYSQL_DATABASE_URL'))
 
+engine = create_engine('mysql+pymysql://root:root@teamC_mysql:3306/InsideOut')
 meta = MetaData()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -39,7 +40,7 @@ def initialize_database():
             Emotion(
                 emotion_name="기쁨이",
                 explanation="기분이 좋은 상태",
-                wording="기쁨이 명대사",
+                wording="어려운 점만 계속 신경쓸 수는 없어. 상황을 바꿀 수 있는 방법은 항상 있지. 즐거움을 찾는 거 말야!",
                 is_deleted=False,
                 created_at=datetime.now(KST),
                 updated_at=datetime.now(KST)
@@ -49,7 +50,7 @@ def initialize_database():
             Emotion(
                 emotion_name="슬픔이",
                 explanation="마음이 아프거나 슬픈 상태",
-                wording="슬픔이 명대사",
+                wording="때로는 슬퍼도 괜찮아, 슬픔을 느끼는 건 네가 무언가를 소중히 여긴다는 뜻이야.",
                 is_deleted=False,
                 created_at=datetime.now(KST),
                 updated_at=datetime.now(KST)
@@ -58,7 +59,7 @@ def initialize_database():
             Emotion(
                 emotion_name="버럭이",
                 explanation="화가난 상태",
-                wording="버럭이 명대사",
+                wording="너는 많은 실수를 했고 앞으로도 더 많이 하겠지. 그렇다고 멈춘다면 여기서 결국 주저앉아 포기하게 될거야",
                 is_deleted=False,
                 created_at=datetime.now(KST),
                 updated_at=datetime.now(KST)
@@ -67,7 +68,7 @@ def initialize_database():
             Emotion(
                 emotion_name="까칠이",
                 explanation="까칠한 상태",
-                wording="까칠이이 명대사",
+                wording="네 직감을 믿어. 그것들은 결코 거짓말 하지 않아.",
                 is_deleted=False,
                 created_at=datetime.now(KST),
                 updated_at=datetime.now(KST)
@@ -76,7 +77,7 @@ def initialize_database():
             Emotion(
                 emotion_name="소심이",
                 explanation="소심한 상태",
-                wording="소심이 명대사",
+                wording="변화는 두렵지만, 때론 위대한 일로 이어지기도 해.",
                 is_deleted=False,
                 created_at=datetime.now(KST),
                 updated_at=datetime.now(KST)
@@ -85,7 +86,7 @@ def initialize_database():
             Emotion(
                 emotion_name="불안이",
                 explanation="불안한 상태",
-                wording="불안이 명대사",
+                wording="우리에겐 다양한 감정이 섞여 있어. 그게 우리를 독특하고 아름답게 만들지.",
                 is_deleted=False,
                 created_at=datetime.now(KST),
                 updated_at=datetime.now(KST)
