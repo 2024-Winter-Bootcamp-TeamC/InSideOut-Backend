@@ -45,7 +45,6 @@ async def file(db: Session, user_id: int, category: str, files: List[UploadFile]
     response = await seven_ai_one_response(prompts)
     
     await redis_save(user_id, redis_key, redis_data, category, content, response)
-    
 
     return {"message": "success"}
 
