@@ -15,7 +15,6 @@ if os.getenv("TESTING") == "True":
 else:
     engine = create_engine(os.getenv('MYSQL_DATABASE_URL'))
 
-engine = create_engine('mysql+pymysql://root:root@teamC_mysql:3306/InsideOut')
 meta = MetaData()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
