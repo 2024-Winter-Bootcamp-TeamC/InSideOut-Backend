@@ -13,3 +13,7 @@ python-dotenv
 redis
 aioredis
 aiofiles
+audioread
+pydub
+elevenlabs
+prometheus-fastapi-instrumentator

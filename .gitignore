@@ -3,3 +3,13 @@ db_data
 __pycache__
 .env
 redis.conf
+grafana/data/alerting
+grafana/data/csv
+grafana/data/pdf
+grafana/data/plugins
+grafana/data/png
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+ethereal-creek-448408-k4-87309d3b45c5.json

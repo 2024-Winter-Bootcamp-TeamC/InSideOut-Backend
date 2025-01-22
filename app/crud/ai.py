@@ -3,12 +3,16 @@ import os
 import json
 from typing import List
 from utils.prompt import REPORT_PROMPTS
-
+import re
+from crud.chatroom import get_chatroom
+from crud.user import find_user
+from sqlalchemy.orm import Session
+from fastapi import HTTPException
 api_key = os.getenv("ANTHROPIC_API_KEY")
 
 client = anthropic.Anthropic(api_key=api_key)
 
-def create_report(client_message: List[str], emotion_message: List[str]):
+def create_report(client_message: str, emotion_message: str):
     """
     사용자 입력 메시지와 감정 데이터를 바탕으로 Claude AI에 요청을 보내고,
     감정 퍼센티지와 감정별 요약을 생성합니다.
@@ -25,7 +29,7 @@ def create_report(client_message: List[str], emotion_message: List[str]):
             temperature=0.0,  
             messages=[{"role": "user", "content": full_prompt}]
         )
-        response_text = response.content[0].text.strip()  
+        response_text = response.content[0].text.strip()
 
         if '###' not in response_text:
             raise ValueError("Unexpected response format: '###' separator not found.")
@@ -35,15 +39,13 @@ def create_report(client_message: List[str], emotion_message: List[str]):
         response_percentages = json.loads(percentages_text)
         response_summary = json.loads(summaries_text)
 
-        return {
-            "response_percentages": response_percentages,
-            "response_summary": response_summary,
-        }
+        return response_percentages, response_summary
 
     except json.JSONDecodeError as decode_error:
         return {"error": f"JSON decode error: {decode_error}"}
     except Exception as e:
         return {"error": str(e)}
+
     
 async def seven_ai_one_response(prompts:str):
 
@@ -82,6 +84,39 @@ async def seven_ai_one_response(prompts:str):
             ]
         )
         
-        return response.content 
+       
+        if isinstance(response.content, list):
+            raw_content = response.content[0]  # 리스트의 첫 번째 요소 사용
+        else:
+            raw_content = response.content  # 리스트가 아니면 그대로 사용
+
+        # 정규식을 이용해 텍스트 추출
+        match = re.search(r"text='(.*?)', type='text'", str(raw_content), re.DOTALL)
+        if match:
+            parsed_content = match.group(1)
+        else:
+            parsed_content = str(raw_content)  # 파싱 실패 시 원본 사용
+
+        # \n 제거 및 텍스트 분리
+        parsed_content = parsed_content.replace("\\n", "\n")  # \n을 실제 줄바꿈으로 변환
+        lines = parsed_content.strip().split("\n")  # 줄바꿈 기준으로 분리
+
+        # 감정별로 딕셔너리 생성
+        emotion_dict = {}
+        for line in lines:
+            if ": " in line:  # "감정이: 내용" 형식만 처리
+                emotion, advice = line.split(": ", 1)
+                emotion_dict[emotion.strip()] = advice.strip()
+
+        return emotion_dict
+
     except Exception as e:
         return f"Error: {str(e)}"
+    
+def ValidateUserandChatRoom (user_id: int, chatroom_id: int, db: Session):
+    ChatRoom = get_chatroom(db,chatroom_id)
+    if ChatRoom is None:
+        raise HTTPException(status_code=404, detail="ChatRoom not found")
+    User = find_user(user_id,db)
+    if ChatRoom.user_id != user_id:
+        raise HTTPException(status_code=404, detail="채팅방 유저가 아닙니다")

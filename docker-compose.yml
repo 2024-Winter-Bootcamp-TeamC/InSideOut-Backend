@@ -1,3 +1,5 @@
+version: '3'
+
 services:     
   backend:
     build:
@@ -13,6 +15,10 @@ services:
       - .env
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_VISION_API_KEY=${GOOGLE_VISION_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - REDIS_HOST=teamC_redis
+      - REDIS_PORT=6379
 
   teamC_mysql:
     image: mysql:latest  
@@ -33,3 +39,36 @@ services:
       - /var/lib/docker/volumes/redis/_data
       - /app/redis.conf
     command: redis-server /app/redis.conf
+
+  cadvisor: 
+    image: gcr.io/cadvisor/cadvisor:latest 
+    ports:
+      - "8080:8080" 
+    volumes:
+      - /:/rootfs:ro 
+      - /var/run:/var/run:ro 
+      - /sys:/sys:ro 
+      - /var/lib/docker/:/var/lib/docker:ro 
+      
+  prometheus: 
+    image: prom/prometheus:latest 
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+      
+  grafana:
+    image: grafana/grafana:9.5.20
+    container_name: grafana
+    volumes:
+      - ./grafana:/etc/grafana/provisioning 
+      - ./grafana/data:/var/lib/grafana 
+    ports:
+      - "3000:3000" 
+  
+networks:
+  app-network:
+    driver: bridge
