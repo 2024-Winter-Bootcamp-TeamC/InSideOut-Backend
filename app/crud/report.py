@@ -28,6 +28,8 @@ async def post_report_by_user_id(user_id: int, chatroom_id: int, db: Session):
     content_key = f"content_{user_id}"
     chat_key = f"chat_{chatroom_id}"
     chat_user_input_key = f"chat_user_input_{chatroom_id}"
+    emotion_key = f"emotion_{user_id}"
+    user_key = f"user_{user_id}"
 
     # Redis에서 값 가져오기
     category = await redis_client.get(category_key)
@@ -43,6 +45,8 @@ async def post_report_by_user_id(user_id: int, chatroom_id: int, db: Session):
     await redis_client.delete(content_key)
     await redis_client.delete(chat_key)
     await redis_client.delete(chat_user_input_key)
+    await redis_client.delete(emotion_key)
+    await redis_client.delete(user_key)
 
     all_emotion_percentage, all_emotion_summary = create_report(client_message, emotion_message)
 

@@ -27,7 +27,7 @@ async def generate_event_stream(
     emotions: List[str], 
     db: Session, 
     mode: str,
-    user_prompt: Optional[str] = None
+    user_prompt: Optional[str] | None
 ):
     try:
         total_chat_buffer = ""
@@ -99,12 +99,12 @@ async def generate_event_stream(
         yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
 
     finally:
-        await redis_client.set(
+        await redis_client.append(
             f"chat_{chatroom_id}",
             json.dumps({"total_chat_buffer": total_chat_buffer}, ensure_ascii=False).encode("utf-8"),
         )
         if mode == "messages":
-            await redis_client.set(
+            await redis_client.append(
                 f"chat_user_input_{chatroom_id}",
                 json.dumps({"user_input": user_prompt}, ensure_ascii=False).encode("utf-8"),
             )
