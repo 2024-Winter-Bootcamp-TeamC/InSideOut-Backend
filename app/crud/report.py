@@ -2,6 +2,7 @@ from models import Report,EmotionPercentage,Emotion  # Report는 SQLAlchemy 모�
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from datetime import datetime
+from crud.chatroom import delete_chatroom
 from crud.ai import create_report
 from crud.preparation import redis_client
 
@@ -59,6 +60,9 @@ async def post_report_by_user_id(user_id: int, chatroom_id: int, db: Session):
     db.refresh(response_data)
 
     parse_percentages(all_emotion_percentage, response_data.id, db)
+
+    delete_chatroom(db, chatroom_id)
+
     return response_data.id
 
 

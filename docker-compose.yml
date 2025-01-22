@@ -17,6 +17,8 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - GOOGLE_VISION_API_KEY=${GOOGLE_VISION_API_KEY}
       - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - REDIS_HOST=teamC_redis
+      - REDIS_PORT=6379
 
   teamC_mysql:
     image: mysql:latest  
