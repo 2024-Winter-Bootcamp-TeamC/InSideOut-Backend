@@ -9,6 +9,7 @@ from main import app
 from database import get_db, engine
 from fastapi.testclient import TestClient
 from models import *
+import io
 
 # 테스트용 세션 및 DB 설정
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -45,4 +46,21 @@ def user_id(client,user_data):
     )
     return response.json()["id"]
     
+
+@pytest.fixture
+def test_files():
+    file_content = b"test image content"
+    file_name = "test_image.jpeg"
+    files = {
+        "files": (file_name, io.BytesIO(file_content), "image/jpeg")
+    }
+    return files
+
+@pytest.fixture
+def test_user_data():
+    return {
+        "user_id": 1,
+        "category": "test_category",
+        "content": "test_content"
+    }
 
