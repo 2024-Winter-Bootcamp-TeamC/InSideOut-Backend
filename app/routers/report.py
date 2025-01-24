@@ -21,7 +21,7 @@ async def create_report(user_id: int, chatroom_id:int, db: Session = Depends(get
 
     try:
         response = await ReportServices.post_report_by_user_id(user_id, chatroom_id, db)
-        return CreateResponse(status="success", message="Data posted successfully", report_id=response, tags=["Reports"])
+        return CreateResponse(status="success", message="Data posted successfully", report_id=response)
     except HTTPException as e:
         raise e
 
