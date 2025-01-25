@@ -17,4 +17,5 @@ audioread
 pydub
 elevenlabs
 prometheus-fastapi-instrumentator
-pytest-asyncio
+pytest
+
