@@ -26,8 +26,8 @@ jobs:
 
       - name: Run tests and capture results
         env:
-          GOOGLE_VISION_API_KEY: ${{secrit.GOOGLE_VISION_API_KEY}}
-          ANTHROPIC_API_KEY: ${{secrit.ANTHROPIC_API_KEY}}
+          GOOGLE_VISION_API_KEY: ${{secrets.GOOGLE_VISION_API_KEY}}
+          ANTHROPIC_API_KEY: ${{secrets.ANTHROPIC_API_KEY}}
         run: |
           pytest .
 
