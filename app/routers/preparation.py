@@ -17,3 +17,4 @@ user_counters = {}
 async def upload_data(user_id: int, category: str, files: List[UploadFile] = File(...), content: str = Form(...), db: Session = Depends(get_db)):
     result = await preparation.file(db, user_id, category, files, content)
     return result
+
