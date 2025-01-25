@@ -27,46 +27,6 @@ jobs:
       - name: Run tests and capture results
         id: pytest
         run: |
-          pytest tests/ --junitxml=results.xml || echo "Tests failed"
-        continue-on-error: true  
+          pytest .
 
       
-      - name: Post test results to PR
-        if: failure() 
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { context } = require('@actions/github');
-            const fs = require('fs');
-
-            // JUnit XML 파일 읽기
-            const resultsXml = fs.readFileSync('results.xml', 'utf8');
-
-            // 실패한 테스트 추출
-            const failedTests = resultsXml
-              .split('<testcase')
-              .filter(caseStr => caseStr.includes('failure'))
-              .map(caseStr => {
-                const nameMatch = caseStr.match(/name="([^"]+)"/);
-                const messageMatch = caseStr.match(/<failure message="([^"]+)"/);
-                return {
-                  name: nameMatch ? nameMatch[1] : 'Unknown test',
-                  message: messageMatch ? messageMatch[1] : 'No message'
-                };
-              });
-
-            let commentBody = '## ❌ Test Results\n\n';
-            if (failedTests.length > 0) {
-              commentBody += 'The following tests have failed:\n\n';
-              failedTests.forEach(test => {
-                commentBody += `- **${test.name}**: ${test.message}\n`;
-              });
-            } else {
-              commentBody += 'No test failures detected.\n';
-            }
-
-            github.issues.createComment({
-              ...context.repo,
-              issue_number: context.payload.pull_request.number,
-              body: commentBody
-            });
