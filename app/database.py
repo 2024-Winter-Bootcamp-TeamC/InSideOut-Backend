@@ -90,11 +90,11 @@ def initialize_database():
                 created_at=datetime.now(KST),
                 updated_at=datetime.now(KST)
             ),
-            #당황이 7
+            #부럽이 7
             Emotion(
-                emotion_name="당황이",
-                explanation="당황한 상태",
-                wording="당황이 명대사",
+                emotion_name="부럽이",
+                explanation="부러운 상태",
+                wording="왜 걔만 특별한 거야? 나도 똑같이 멋지다고!",
                 is_deleted=False,
                 created_at=datetime.now(KST),
                 updated_at=datetime.now(KST)

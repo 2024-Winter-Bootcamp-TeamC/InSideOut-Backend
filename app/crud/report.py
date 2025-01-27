@@ -80,7 +80,7 @@ def parse_percentages(all_emotion_percentage: dict, report_id: int, db: Session)
         "까칠이": 4,
         "소심이": 5,
         "불안이": 6,
-        "당황이": 7
+        "부럽이": 7
     }
 
     #JSON형태의 감정이름:퍼센테이지를 파싱해서 데이터베이스에 저장
