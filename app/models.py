@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Float, JSON
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship,declarative_base
 from datetime import datetime
 import pytz
 
@@ -58,6 +57,7 @@ class Chatroom(Base):
     # 관계 설정
     user = relationship("User", back_populates="chatrooms")
     emotion_chooses = relationship("EmotionChoose", back_populates="chatroom")
+    chats = relationship("Chat", back_populates="chatroom")  # Chat과의 관계
     
 class Emotion(Base):
     __tablename__ = 'emotion'  # 테이블 이름
@@ -109,3 +109,20 @@ class EmotionPercentage(Base):
     report = relationship("Report", back_populates="emotion_percentages")
     emotion = relationship("Emotion", back_populates="emotion_percentages")
 
+
+class Chat(Base):
+    __tablename__ = 'chat'
+    id = Column(Integer, primary_key=True, index=True)  # 기본 키
+    chatroom_id = Column(Integer, ForeignKey('chatroom.id'), nullable=False)  # 외래 키
+    chat_content = Column(Text, nullable=False)  
+    chat_speaker = Column(String(10), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(KST))
+    updated_at = Column(
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(KST),
+        onupdate=lambda: datetime.now(KST),
+    )
+    is_deleted = Column(Boolean, default=False)
+    # 외래 키 관계 설정
+    chatroom = relationship("Chatroom", back_populates="chats")

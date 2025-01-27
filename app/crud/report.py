@@ -5,7 +5,7 @@ from datetime import datetime
 from crud.chatroom import delete_chatroom
 from crud.ai import create_report
 from crud.preparation import redis_client
-
+from crud.chat import save_chat
 def get_reports_by_user_id(user_id: int, db: Session):
     reports = db.query(Report).filter(Report.user_id == user_id, Report.is_deleted == False).all()
     
@@ -36,7 +36,7 @@ async def post_report_by_user_id(user_id: int, chatroom_id: int, db: Session):
     situation_summary = await redis_client.get(content_key)
     client_message = await redis_client.get(chat_user_input_key)
     emotion_message = await redis_client.get(chat_key)
-
+    
     if not client_message or not emotion_message:
         raise HTTPException(status_code=400, detail="Invalid input data from Redis.")
 
@@ -48,6 +48,7 @@ async def post_report_by_user_id(user_id: int, chatroom_id: int, db: Session):
     await redis_client.delete(emotion_key)
     await redis_client.delete(user_key)
 
+    save_chat(client_message, emotion_message, chatroom_id, db)
     all_emotion_percentage, all_emotion_summary = create_report(client_message, emotion_message)
 
     response_data = Report(
@@ -79,7 +80,7 @@ def parse_percentages(all_emotion_percentage: dict, report_id: int, db: Session)
         "까칠이": 4,
         "소심이": 5,
         "불안이": 6,
-        "당황이": 7
+        "부럽이": 7
     }
 
     #JSON형태의 감정이름:퍼센테이지를 파싱해서 데이터베이스에 저장
