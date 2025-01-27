@@ -50,7 +50,7 @@ async def post_report_by_user_id(user_id: int, chatroom_id: int, db: Session):
 
     save_chat(client_message, emotion_message, chatroom_id, db)
     all_emotion_percentage, all_emotion_summary = create_report(client_message, emotion_message)
-
+    
     response_data = Report(
         user_id=user_id,
         title=datetime.now().strftime("%Y-%m-%d"),
@@ -65,8 +65,6 @@ async def post_report_by_user_id(user_id: int, chatroom_id: int, db: Session):
     db.refresh(response_data)
 
     parse_percentages(all_emotion_percentage, response_data.id, db)
-
-    delete_chatroom(db, chatroom_id)
 
     return response_data.id
 
