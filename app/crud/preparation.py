@@ -2,7 +2,7 @@ import io
 import os
 from fastapi import UploadFile, File, Form
 from utils import vision 
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import Session
 import redis, json
 from crud.ai import seven_ai_one_response
@@ -18,23 +18,26 @@ if not os.path.exists(UPLOAD_DIR):
 
 user_counters = {}
 
-async def file(db: Session, user_id: int, category: str, files: List[UploadFile] = File(...), content: str = Form(...)):
+async def file(db: Session, user_id: int, category: str, files: Optional[List[UploadFile]] = File([]), content: str = Form(...)):
     file_details = []
     global user_counters
 
     if user_id not in user_counters:
         user_counters[user_id] = 1  
 
-    for file in files:
-        n = user_counters[user_id]
-        filename = f"{user_id}_{n}.jpeg"
-        user_counters[user_id] += 1  
+    image = None
 
-        file_path = os.path.join(UPLOAD_DIR, filename)
-        with open(file_path, "wb") as buffer:
-            buffer.write(await file.read())
+    if files:  # 파일이 제공된 경우만 처리
+        for file in files:
+            n = user_counters[user_id]
+            filename = f"{user_id}_{n}.jpeg"
+            user_counters[user_id] += 1  
 
-    image = await vision.process_user_images(user_id)
+            file_path = os.path.join(UPLOAD_DIR, filename)
+            with open(file_path, "wb") as buffer:
+                buffer.write(await file.read())
+
+        image = await vision.process_user_images(user_id)
 
     redis_key = f"user_{user_id}"
     redis_data = {"category": category, "content": content, "image": image}
