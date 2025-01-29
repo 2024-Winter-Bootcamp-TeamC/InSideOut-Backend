@@ -18,14 +18,17 @@ if not os.path.exists(UPLOAD_DIR):
 
 user_counters = {}
 
-async def file(db: Session, user_id: int, category: str, files: Optional[List[UploadFile]] = File([]), content: str = Form(...)):
+async def file(db: Session, user_id: int, category: str, files: Optional[List[UploadFile]] = File(None), content: str = Form(...)):
     file_details = []
     global user_counters
 
     if user_id not in user_counters:
         user_counters[user_id] = 1  
 
-    image = None
+    if files is None:
+        files = []
+    
+    image = "No file uploaded"
 
     if files:  # 파일이 제공된 경우만 처리
         for file in files:
