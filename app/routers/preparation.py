@@ -13,7 +13,7 @@ if not os.path.exists(UPLOAD_DIR):
 
 user_counters = {}
 
-@router.post("/", tags=["Preparation"])
+@router.post(" ", tags=["Preparation"])
 async def upload_data(user_id: int, category: str, files: Optional[List[UploadFile]] = File([]), content: str = Form(...), db: Session = Depends(get_db)):
     result = await preparation.file(db, user_id, category, files, content)
     return result
