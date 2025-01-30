@@ -9,6 +9,7 @@ from utils.prompt import PROMPTS, RULES, DEBATE_PROMPTS, BASIC_PROMPTS
 from elevenlabs.client import ElevenLabs
 import anthropic
 import os
+from models import Chat
 from elevenlabs import VoiceSettings
 api_key = os.getenv("ANTHROPIC_API_KEY")
 elevenlabs_api_key = os.getenv("ELEVENLABS_API_KEY")
@@ -90,7 +91,7 @@ async def generate_event_stream(
                         total_chat_buffer += chat_buffer + "\n"
                         await redis_client.append(
                         f"chat_{chatroom_id}",
-                        json.dumps({"total_chat_buffer": total_chat_buffer}, ensure_ascii=False).encode("utf-8"),
+                        json.dumps(total_chat_buffer, ensure_ascii=False).encode("utf-8"),
                         )
                 except Exception as inner_error:
                     error_data = {
@@ -132,51 +133,23 @@ def create_full_prompt(mode: str, emotion: str, preparation: str, before_chat: s
     
 
 def save_chat(client_message, emotion_message, chatroom_id, db):
-    # client_message 파싱
-    try:
-        if isinstance(client_message, str):
-            client_message = json.loads(client_message)
-        client_data = client_message.get("user_input", [])
-    except (json.JSONDecodeError, AttributeError):
-        client_data = []  
 
-    # emotion_message 파싱
-    try:
-        if isinstance(emotion_message, str):
-            emotion_message = json.loads(emotion_message)
-        emotion_data = emotion_message.get("total_chat_buffer", "")
-    except (json.JSONDecodeError, AttributeError):
-        emotion_data = "" 
+    # 유저 메시지 저장
+    response_data = Chat(
+        chatroom_id=chatroom_id,
+        chat_content=client_message,
+        chat_speaker="client"  
+    )
+    db.add(response_data)
+    db.commit()
+    db.refresh(response_data)
 
-    # 각각 감정에 해당하는 대화 내용 추출
-    emotion_messages = {}
-    emotion_lines = emotion_data.split("\n")
-    for line in emotion_lines:
-        if line.strip(): 
-            try:
-                emotion, message = line.split(" : ", 1)
-                emotion_messages[emotion] = message
-            except ValueError:
-                continue  
-
-    # 감정별 메시지 저장
-    for emotion, message in emotion_messages.items():
-        response_data = Chat(
-            chatroom_id=chatroom_id,
-            chat_content=message,
-            chat_speaker=emotion,  # 감정명 저장
-        )
-        db.add(response_data)
-        db.commit()
-        db.refresh(response_data)
-
-    # 유저 메시지 처리
-    for client_msg in client_data:
-        response_data = Chat(
-            chatroom_id=chatroom_id,
-            chat_content=client_msg,
-            chat_speaker="client",  # 유저가 보낸 메시지
-        )
-        db.add(response_data)
-        db.commit()
-        db.refresh(response_data)
+    # 감정 메시지 저장
+    response_data = Chat(
+        chatroom_id=chatroom_id,
+        chat_content=emotion_message,
+        chat_speaker="emotions"  
+    )
+    db.add(response_data)
+    db.commit()
+    db.refresh(response_data)

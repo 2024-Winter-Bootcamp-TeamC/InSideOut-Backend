@@ -1,0 +1,70 @@
+# 배포용 docker compose.prod.yml 파일
+# 실행 방법: docker-compose -f docker-compose.prod.yml up -d --build
+
+services:
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"    
+    volumes:
+      - './app:/code/app'
+    depends_on:
+      - teamC_mysql
+    env_file: 
+      - .env
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_VISION_API_KEY=${GOOGLE_VISION_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+
+  teamC_mysql:
+    image: mysql:latest  
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      Lang: C.UTF-8
+    ports:
+      - "3307:3306"  
+    volumes:
+      - ./db_data:/var/lib/mysql
+
+  teamC_redis:
+    image: redis:latest
+    ports: 
+      - "6380:6379"
+    volumes: 
+      - /var/lib/docker/volumes/redis/_data
+      - /app/redis.conf
+    command: redis-server /app/redis.conf
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"           # HTTP
+      - "443:443"         # HTTPS (SSL 인증서 사용 시)
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro 
+      - ./certbot/conf:/etc/letsencrypt 
+      - ./certbot/www:/var/www/certbot
+      # - ./certs:/etc/nginx/certs:ro           
+      # - ./static:/usr/share/nginx/html:ro   
+    depends_on:
+      - backend
+      # - frontend
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+  
+  certbot: 
+    image: certbot/certbot
+    restart: unless-stopped
+    container_name: certbot
+    volumes: 
+      - ./certbot/conf:/etc/letsencrypt  
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - nginx
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
