@@ -9,7 +9,7 @@ fi
 
 compose_file="docker-compose.prod.yml"
 
-domains=(myinsideout.world www.myinsideout.world) # 등록한 도메인으로
+domains=(api.myinsideout.world) # 등록한 도메인으로
 rsa_key_size=4096
 data_path="./certbot"   # 인증서 데이터 저장 경로
 email="winterteamc7@gmail.com" # Let's Encrypt에서 사용할 본인 이메일로
