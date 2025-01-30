@@ -19,7 +19,11 @@ app = FastAPI(
     redoc_url="/v1/redoc",
     openapi_url="/v1/openapi.json",
 )
-origin = {"http://localhost:5173"}
+origin = {"http://localhost:5173",
+        "https://www.myinsideout.world",
+        "https://myinsideout.world"
+
+}
 
 Base.metadata.create_all(bind=engine)
 
