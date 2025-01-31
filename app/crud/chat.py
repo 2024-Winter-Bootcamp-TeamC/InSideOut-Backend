@@ -53,7 +53,7 @@ async def generate_event_stream(
                         system=system_prompt,
                         temperature=0.5,
                         messages=[{"role": "user", "content": full_prompt}],
-                        model="claude-3-5-sonnet-20241022",
+                        model="claude-3-5-haiku-20241022",
                     ) as stream:
                         buffer = []
                         chunk_size = 6
