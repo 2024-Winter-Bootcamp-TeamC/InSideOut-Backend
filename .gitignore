@@ -10,3 +10,4 @@ terraform.tfstate
 terraform.tfstate.backup
 ethereal-creek-448408-k4-87309d3b45c5.json
 certbot/
+app/uploads/
