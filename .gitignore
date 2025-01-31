@@ -3,7 +3,7 @@ db_data
 __pycache__
 .env
 redis.conf
-grafana/data/*
+grafana/*
 .terraform
 .terraform.lock.hcl
 terraform.tfstate
